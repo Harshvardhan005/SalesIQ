@@ -1,1 +1,1 @@
-# SalesIQ.
+# SalesIQ
