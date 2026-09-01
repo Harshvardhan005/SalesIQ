@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SalesIQ — AI-Powered Sales Intelligence Platform</title>
+  <meta name="description" content="Research companies, identify business pain points, qualify leads and generate personalized outreach using AI.">
+  <!-- Remix Icons for crisp SaaS iconography -->
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- ==========================================================================
+       LANDING PAGE VIEW
+       ========================================================================== -->
+  <div id="landing-view" class="view-section active">
+    
+    <!-- 1. Sticky Navbar -->
+    <header class="navbar">
+      <div class="container nav-container">
+        <a href="#" class="brand-logo" onclick="switchMainView('landing')">
+          <div class="brand-icon">
+            <i class="ri-sparkling-fill"></i>
+          </div>
+          <span>SalesIQ</span>
+        </a>
+
+        <ul class="nav-links">
+          <li><a href="#landing-view" class="nav-link active">Home</a></li>
+          <li><a href="#features" class="nav-link">Features</a></li>
+          <li><a href="#how-it-works" class="nav-link">How It Works</a></li>
+          <li><a href="#stats" class="nav-link">Metrics</a></li>
+          <li><a href="#" class="nav-link" onclick="switchMainView('dashboard')">Dashboard</a></li>
+        </ul>
+
+        <div class="nav-actions">
+          <button class="btn btn-secondary btn-sm" onclick="switchMainView('dashboard')">Sign In</button>
+          <button class="btn btn-primary btn-sm" onclick="switchMainView('dashboard')">Launch App <i class="ri-arrow-right-line"></i></button>
+        </div>
+      </div>
+    </header>
+
+    <!-- 2. Hero Section -->
+    <section class="hero">
+      <div class="container">
+        <div class="hero-badge-wrapper">
+          <span class="badge">
+            <i class="ri-flashlight-line"></i> Powered by Next-Gen AI Sales Engine 2.0
+          </span>
+        </div>
+        
+        <h1 class="hero-title">
+          Turn Company Data Into <span class="gradient-text">Sales Opportunities</span>
+        </h1>
+        
+        <p class="hero-subtitle">
+          Research companies, identify business pain points, qualify leads and generate highly personalized sales outreach in seconds using AI.
+        </p>
+
+        <div class="hero-buttons">
+          <button class="btn btn-primary btn-lg" onclick="switchMainView('dashboard', 'research')">
+            <i class="ri-search-eye-line"></i> Analyze Company
+          </button>
+          <button class="btn btn-secondary btn-lg" onclick="scrollToDemo()">
+            <i class="ri-play-circle-line"></i> Live Demo
+          </button>
+        </div>
+
+        <!-- Dashboard Preview -->
+        <div class="dashboard-preview-wrapper" id="live-demo">
+          <div class="dashboard-preview-card">
+            <div class="preview-bar">
+              <div class="window-dots">
+                <span class="dot dot-red"></span>
+                <span class="dot dot-yellow"></span>
+                <span class="dot dot-green"></span>
+              </div>
+              <div class="window-title">
+                <i class="ri-lock-line"></i> salesiq.app/dashboard/intelligence
+              </div>
+              <div style="width: 50px;"></div>
+            </div>
+
+            <div class="preview-body">
+              <div class="preview-stats-row">
+                <div class="preview-mini-card">
+                  <div class="preview-mini-title">Qualified Leads</div>
+                  <div class="preview-mini-val accent-text">1,482</div>
+                </div>
+                <div class="preview-mini-card">
+                  <div class="preview-mini-title">Avg. Conversion</div>
+                  <div class="preview-mini-val">34.8%</div>
+                </div>
+                <div class="preview-mini-card">
+                  <div class="preview-mini-title">Avg. Lead Score</div>
+                  <div class="preview-mini-val" style="color: var(--success)">92 / 100</div>
+                </div>
+              </div>
+
+              <div class="preview-grid">
+                <div class="preview-chart-box">
+                  <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <h4 style="font-size:0.9375rem;">Real-time Pipeline Signal Velocity</h4>
+                    <span class="badge" style="font-size:0.75rem;">+24% vs last week</span>
+                  </div>
+                  <!-- Mock Wave Visual -->
+                  <div style="height: 120px; display: flex; align-items: flex-end; gap: 12px; padding-top: 20px;">
+                    <div style="flex:1; background:var(--accent-light); height:45%; border-radius:6px;"></div>
+                    <div style="flex:1; background:var(--accent-light); height:65%; border-radius:6px;"></div>
+                    <div style="flex:1; background:var(--accent-light); height:50%; border-radius:6px;"></div>
+                    <div style="flex:1; background:var(--accent-light); height:85%; border-radius:6px;"></div>
+                    <div style="flex:1; background:var(--accent); height:100%; border-radius:6px; box-shadow: var(--shadow-glow)"></div>
+                    <div style="flex:1; background:var(--accent-light); height:75%; border-radius:6px;"></div>
+                    <div style="flex:1; background:var(--accent-light); height:90%; border-radius:6px;"></div>
+                  </div>
+                </div>
+
+                <div class="preview-feed-box">
+                  <h4 style="font-size:0.9375rem; margin-bottom:12px;">Live AI Activity</h4>
+                  <div class="feed-item">
+                    <div class="feed-icon"><i class="ri-building-line"></i></div>
+                    <div class="feed-content">
+                      <h5>Acme Corp Analyzed</h5>
+                      <p>Found 3 primary pain points & key decision makers</p>
+                    </div>
+                  </div>
+                  <div class="feed-item">
+                    <div class="feed-icon"><i class="ri-mail-send-line"></i></div>
+                    <div class="feed-content">
+                      <h5>Outreach Sequence Ready</h5>
+                      <p>Generated 3 cold email variants for CTO</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Stats Section -->
+    <section class="stats-section" id="stats">
+      <div class="container">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-number">150,000+</div>
+            <div class="stat-label">Companies Analyzed</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">2.4M+</div>
+            <div class="stat-label">Sales Messages Generated</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">94.2%</div>
+            <div class="stat-label">Lead Score Accuracy</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">500,000+</div>
+            <div class="stat-label">Reports Saved</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. Features Section -->
+    <section class="features-section" id="features">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag">Supercharge Sales Engine</span>
+          <h2 class="section-title">Built for Modern High-Growth Revenue Teams</h2>
+          <p class="section-subtitle">Everything you need to turn raw firmographic data into booked meetings.</p>
+        </div>
+
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon-box"><i class="ri-search-line"></i></div>
+            <h3 class="feature-title">AI Company Research</h3>
+            <p class="feature-desc">Extract tech stack, recent funding, open hiring roles, and executive changes instantly from any URL.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon-box"><i class="ri-user-star-line"></i></div>
+            <h3 class="feature-title">Lead Intelligence</h3>
+            <p class="feature-desc">Automatically identify key buyer personas, decision-makers, and ideal customer fit score.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon-box"><i class="ri-error-warning-line"></i></div>
+            <h3 class="feature-title">Pain Point Analysis</h3>
+            <p class="feature-desc">Uncover operational bottlenecks, legacy software issues, and strategic priorities for your prospects.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon-box"><i class="ri-mail-open-line"></i></div>
+            <h3 class="feature-title">Sales Emails</h3>
+            <p class="feature-desc">Draft ultra-personalized, non-generic cold email sequences tailored to target executive pain points.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon-box"><i class="ri-linkedin-box-line"></i></div>
+            <h3 class="feature-title">LinkedIn Outreach</h3>
+            <p class="feature-desc">Generate compelling, natural connection requests and InMail messages with high response rates.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon-box"><i class="ri-presentation-line"></i></div>
+            <h3 class="feature-title">Sales Pitch Generator</h3>
+            <p class="feature-desc">Build customized value propositions, ROI objection handlers, and discovery call talking points.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. How It Works Section -->
+    <section class="how-section" id="how-it-works">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag">Simple & Powerful</span>
+          <h2 class="section-title">How SalesIQ Works in 3 Steps</h2>
+          <p class="section-subtitle">From prospect domain name to tailored outreach script in seconds.</p>
+        </div>
+
+        <div class="steps-container">
+          <div class="step-card">
+            <div class="step-number">1</div>
+            <h3 class="step-title">Enter Company</h3>
+            <p class="step-desc">Provide target company name, website domain, and your value proposition.</p>
+          </div>
+
+          <div class="step-card">
+            <div class="step-number">2</div>
+            <h3 class="step-title">AI Analysis</h3>
+            <p class="step-desc">SalesIQ scans millions of data points to evaluate lead qualification score and specific pain points.</p>
+          </div>
+
+          <div class="step-card">
+            <div class="step-number">3</div>
+            <h3 class="step-title">Generate Outreach</h3>
+            <p class="step-desc">Get hyper-personalized email sequences, LinkedIn connection scripts, and sales deck talking points.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. CTA Section -->
+    <section class="cta-section">
+      <div class="container">
+        <div class="cta-box">
+          <h2 class="cta-title">Ready to Close More Deals Faster?</h2>
+          <p class="cta-subtitle">Join 10,000+ top sales reps and SDRs using SalesIQ to automate company research and outreach.</p>
+          <button class="btn btn-primary btn-lg" onclick="switchMainView('dashboard')">
+            Get Started For Free <i class="ri-arrow-right-line"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. Footer -->
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-grid">
+          <div class="footer-brand">
+            <a href="#" class="brand-logo">
+              <div class="brand-icon">
+                <i class="ri-sparkling-fill"></i>
+              </div>
+              <span>SalesIQ</span>
+            </a>
+            <p>The AI-powered sales intelligence platform designed to eliminate manual research and scale outbound revenue.</p>
+          </div>
+
+          <div class="footer-col">
+            <h4>Product</h4>
+            <ul>
+              <li><a href="#features">AI Research</a></li>
+              <li><a href="#features">Pain Point Analysis</a></li>
+              <li><a href="#features">Email Generator</a></li>
+              <li><a href="#features">LinkedIn Scripts</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-col">
+            <h4>Resources</h4>
+            <ul>
+              <li><a href="#">Documentation</a></li>
+              <li><a href="#">API Reference</a></li>
+              <li><a href="#">Sales Playbooks</a></li>
+              <li><a href="#">Case Studies</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-col">
+            <h4>Company</h4>
+            <ul>
+              <li><a href="#">About Us</a></li>
+              <li><a href="#">Careers</a></li>
+              <li><a href="#">Privacy Policy</a></li>
+              <li><a href="#">Terms of Service</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="footer-bottom">
+          <p>&copy; 2026 SalesIQ Inc. All rights reserved.</p>
+          <div style="display:flex; gap: 16px;">
+            <a href="#"><i class="ri-twitter-fill"></i></a>
+            <a href="#"><i class="ri-linkedin-box-fill"></i></a>
+            <a href="#"><i class="ri-github-fill"></i></a>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+
+  <!-- ==========================================================================
+       DASHBOARD VIEW (SPA MODE)
+       ========================================================================== -->
+  <div id="dashboard-view" class="view-section">
+    <div class="dashboard-layout">
+      
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <a href="#" class="brand-logo" onclick="switchMainView('landing')">
+            <div class="brand-icon">
+              <i class="ri-sparkling-fill"></i>
+            </div>
+            <span>SalesIQ</span>
+          </a>
+        </div>
+
+        <ul class="sidebar-menu">
+          <li class="sidebar-item active" onclick="switchDashTab('overview', this)">
+            <a href="#"><i class="ri-dashboard-3-line"></i> <span>Dashboard</span></a>
+          </li>
+          <li class="sidebar-item" onclick="switchDashTab('research', this)">
+            <a href="#"><i class="ri-search-eye-line"></i> <span>Company Research</span></a>
+          </li>
+          <li class="sidebar-item" onclick="switchDashTab('analysis', this)">
+            <a href="#"><i class="ri-brain-line"></i> <span>AI Analysis</span></a>
+          </li>
+          <li class="sidebar-item" onclick="switchDashTab('generator', this)">
+            <a href="#"><i class="ri-magic-line"></i> <span>Content Generator</span></a>
+          </li>
+          <li class="sidebar-item" onclick="switchDashTab('leads', this)">
+            <a href="#"><i class="ri-bookmark-3-line"></i> <span>Saved Leads</span></a>
+          </li>
+          <li class="sidebar-item" onclick="switchDashTab('reports', this)">
+            <a href="#"><i class="ri-file-chart-line"></i> <span>Reports</span></a>
+          </li>
+          <li class="sidebar-item" onclick="switchDashTab('settings', this)">
+            <a href="#"><i class="ri-settings-4-line"></i> <span>Settings</span></a>
+          </li>
+        </ul>
+
+        <div class="sidebar-footer">
+          <div class="user-avatar">HV</div>
+          <div class="user-info">
+            <h6>Harshvardhan</h6>
+            <p>Growth Lead</p>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Dashboard Main Body -->
+      <main class="dashboard-main">
+        
+        <!-- Top Bar -->
+        <header class="dashboard-topbar">
+          <div class="search-input-box">
+            <i class="ri-search-line"></i>
+            <input type="text" id="global-search-input" placeholder="Search companies, leads, reports..." oninput="handleGlobalSearch(this.value)">
+          </div>
+
+          <div class="topbar-actions">
+            <button class="btn btn-secondary btn-sm" onclick="switchMainView('landing')">
+              <i class="ri-home-4-line"></i> Back to Home
+            </button>
+            <button class="btn btn-primary btn-sm" onclick="switchDashTab('research', document.querySelectorAll('.sidebar-item')[1])">
+              <i class="ri-add-line"></i> New Research
+            </button>
+          </div>
+        </header>
+
+        <!-- Dashboard Content -->
+        <div class="dashboard-content">
+          
+          <!-- TAB 1: OVERVIEW -->
+          <div id="tab-overview" class="dash-tab-content active">
+            <div style="margin-bottom: 24px;">
+              <h2>Dashboard Overview</h2>
+              <p style="color: var(--text-muted); font-size: 0.9375rem;">Welcome back! Here is your real-time sales pipeline intelligence summary.</p>
+            </div>
+
+            <!-- Metric Cards -->
+            <div class="metrics-row">
+              <div class="metric-card">
+                <div class="metric-header">
+                  <span class="metric-title">Total Companies</span>
+                  <div class="metric-icon"><i class="ri-building-4-line"></i></div>
+                </div>
+                <div class="metric-value" id="stat-total-companies">--</div>
+                <div class="metric-trend trend-up">
+                  <i class="ri-arrow-up-line"></i> Active Database
+                </div>
+              </div>
+
+              <div class="metric-card">
+                <div class="metric-header">
+                  <span class="metric-title">Total Leads</span>
+                  <div class="metric-icon"><i class="ri-group-line"></i></div>
+                </div>
+                <div class="metric-value" id="stat-total-leads">--</div>
+                <div class="metric-trend trend-up">
+                  <i class="ri-arrow-up-line"></i> Saved Accounts
+                </div>
+              </div>
+
+              <div class="metric-card">
+                <div class="metric-header">
+                  <span class="metric-title">Avg Lead Score</span>
+                  <div class="metric-icon"><i class="ri-pulse-line"></i></div>
+                </div>
+                <div class="metric-value" id="stat-avg-score">--</div>
+                <div class="metric-trend trend-up">
+                  <i class="ri-arrow-up-line"></i> ICP Match Index
+                </div>
+              </div>
+
+              <div class="metric-card">
+                <div class="metric-header">
+                  <span class="metric-title">Recent Reports</span>
+                  <div class="metric-icon"><i class="ri-draft-line"></i></div>
+                </div>
+                <div class="metric-value" id="stat-recent-reports">--</div>
+                <div class="metric-trend trend-up">
+                  <i class="ri-arrow-up-line"></i> Persisted DB
+                </div>
+              </div>
+            </div>
+
+            <!-- Recent Reports Data Table -->
+            <div style="margin-bottom: 16px; display:flex; justify-content:space-between; align-items:center;">
+              <h3>Recent Research Reports</h3>
+              <span style="font-size:0.875rem; color:var(--accent); font-weight:600; cursor:pointer;" onclick="switchDashTab('reports', document.querySelectorAll('.sidebar-item')[5])">View all →</span>
+            </div>
+
+            <div class="table-card">
+              <div class="table-responsive">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Company</th>
+                      <th>Industry</th>
+                      <th>Lead Score</th>
+                      <th>Pain Points Found</th>
+                      <th>Status</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="overview-table-body">
+                    <!-- Populated dynamically via JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 2: COMPANY RESEARCH & FORM -->
+          <div id="tab-research" class="dash-tab-content">
+            <div style="margin-bottom: 24px;">
+              <h2>Company Research & AI Analysis Form</h2>
+              <p style="color: var(--text-muted); font-size: 0.9375rem;">Input target company details below to trigger backend AI analysis.</p>
+            </div>
+
+            <div class="form-card">
+              <form id="company-research-form" onsubmit="handleResearchSubmit(event)">
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label for="comp-name">Company Name *</label>
+                    <input type="text" id="comp-name" class="form-control" placeholder="e.g. Stripe, Acme Corp, Vercel" required>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="comp-website">Website URL *</label>
+                    <input type="text" id="comp-website" class="form-control" placeholder="e.g. https://stripe.com" required>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="comp-industry">Industry *</label>
+                    <select id="comp-industry" class="form-control" required>
+                      <option value="">Select Industry</option>
+                      <option value="B2B SaaS / Software" selected>B2B SaaS / Software</option>
+                      <option value="Fintech & Banking">Fintech & Banking</option>
+                      <option value="E-Commerce & Retail">E-Commerce & Retail</option>
+                      <option value="Healthcare & Tech">Healthcare & Tech</option>
+                      <option value="Logistics & Supply Chain">Logistics & Supply Chain</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="product-offered">Your Product Offered *</label>
+                    <input type="text" id="product-offered" class="form-control" placeholder="e.g. AI Customer Support Bot, DevSecOps Scanner" required value="AI Sales Engagement Platform">
+                  </div>
+
+                  <div class="form-group">
+                    <label for="target-customer">Target Decision Maker *</label>
+                    <input type="text" id="target-customer" class="form-control" placeholder="e.g. VP of Sales, CTO, Head of Revenue" required value="VP of Sales & Revenue Ops">
+                  </div>
+
+                  <div class="form-group">
+                    <label for="comp-notes">Additional Context / Notes</label>
+                    <input type="text" id="comp-notes" class="form-control" placeholder="e.g. Recently raised Series B, hiring 20 SDRs">
+                  </div>
+                  
+                  <div class="form-group" id="manual-info-group" style="display: none; grid-column: 1 / -1;">
+                    <label for="manual-company-info" style="color: #F59E0B;"><i class="ri-alert-line"></i> Web Scraping Failed. Please paste manual company information:</label>
+                    <textarea id="manual-company-info" class="form-control" rows="4" placeholder="Paste text from the company website, about us page, or LinkedIn profile..."></textarea>
+                  </div>
+                </div>
+
+                <div style="display:flex; justify-content:flex-end; gap:12px;">
+                  <button type="button" class="btn btn-secondary" onclick="fillFormPreset('stripe')">Autofill Preset (Stripe)</button>
+                  <button type="submit" class="btn btn-primary">
+                    <i class="ri-sparkling-2-line"></i> Run AI Analysis
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <!-- Loading Simulation State -->
+            <div id="ai-loading" class="ai-loading-overlay">
+              <div class="spinner"></div>
+              <h3 style="font-size:1.25rem; margin-bottom:8px;">Analyzing Company Data...</h3>
+              <p id="loading-status-text" style="color:var(--text-muted); font-size:0.9375rem;">Communicating with SalesIQ Backend Server...</p>
+            </div>
+
+            <!-- Generated Result Cards -->
+            <div id="analysis-results" class="results-container" style="display: none;">
+              
+              <!-- Toolbar -->
+              <div class="analysis-toolbar" style="grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; background: rgba(30, 41, 59, 0.4); padding: 12px 18px; border-radius: 8px; border: 1px solid var(--border-color); gap: 12px; flex-wrap: wrap;">
+                <div style="font-weight: 600; color: var(--text-light); display: flex; align-items: center; gap: 8px;">
+                  <i class="ri-sparkling-2-line accent-text" style="font-size: 1.2rem;"></i>
+                  <span id="toolbar-status-title" style="font-size: 0.9375rem;">Company Intelligence Report</span>
+                </div>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                  <button type="button" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8125rem; display: flex; align-items: center; gap: 6px;" onclick="copyAnalysisReport()">
+                    <i class="ri-file-copy-line"></i> Copy
+                  </button>
+                  <button type="button" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8125rem; display: flex; align-items: center; gap: 6px;" id="btn-save-report" onclick="saveAnalysisReport()">
+                    <i class="ri-save-line"></i> Save
+                  </button>
+                  <button type="button" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8125rem; display: flex; align-items: center; gap: 6px;" onclick="downloadAnalysisReport()">
+                    <i class="ri-download-line"></i> Download
+                  </button>
+                  <button type="button" class="btn btn-primary" style="padding: 6px 12px; font-size: 0.8125rem; display: flex; align-items: center; gap: 6px;" onclick="regenerateAnalysisReport()">
+                    <i class="ri-refresh-line"></i> Regenerate
+                  </button>
+                </div>
+              </div>
+
+              <!-- Result 1: Lead Qualification -->
+              <div class="result-card">
+                <div class="result-header">
+                  <div class="result-title"><i class="ri-shield-star-line accent-text"></i> ICP Lead Score & Fit</div>
+                  <div style="display:flex; gap:8px;">
+                    <span class="badge" id="res-source-badge" style="background:var(--bg-tertiary); color:var(--text-muted); border-color:var(--border-color);">Source: Website</span>
+                    <span class="badge" id="res-confidence-badge" style="background:var(--success-bg); color:var(--success); border-color:#A7F3D0;">High Fit</span>
+                  </div>
+                </div>
+                <div class="score-gauge-box">
+                  <div class="score-circle">
+                    <span class="score-text" id="res-score">0</span>
+                  </div>
+                  <div>
+                    <h4 style="font-size: 1.125rem; margin-bottom: 4px; color: var(--text-light);" id="res-lead-name">Company Name</h4>
+                    <p style="font-size: 0.875rem; color: var(--text-muted);" id="res-lead-industry">Industry Name</p>
+                    <a href="#" target="_blank" id="res-lead-website" style="font-size: 0.8125rem; color: var(--accent); text-decoration: none; margin-top: 4px; display: inline-block;"><i class="ri-external-link-line"></i> Visit Website</a>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Result 2: Profile Overview & Products -->
+              <div class="result-card">
+                <div class="result-header">
+                  <div class="result-title"><i class="ri-building-line accent-text"></i> Company Profile & Products</div>
+                </div>
+                <div style="font-size: 0.9375rem; line-height: 1.5; color: var(--text-light); margin-bottom: 16px;" id="res-overview">
+                  Overview goes here...
+                </div>
+                <h4 style="font-size: 0.8125rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 8px;">Key Offerings</h4>
+                <ul class="pain-point-list" id="res-products-list" style="margin-top: 0;">
+                  <!-- Populated via API -->
+                </ul>
+              </div>
+
+              <!-- Result 3: Pain Points & Goals -->
+              <div class="result-card">
+                <div class="result-header">
+                  <div class="result-title"><i class="ri-alarm-warning-line accent-text"></i> Pain Points & Goals</div>
+                </div>
+                <h4 style="font-size: 0.8125rem; text-transform: uppercase; letter-spacing: 0.05em; color: #EF4444; margin-bottom: 8px;">Prospect Pain Points</h4>
+                <ul class="pain-point-list" id="res-pain-list" style="margin-bottom: 20px;">
+                  <!-- Populated via API -->
+                </ul>
+                <h4 style="font-size: 0.8125rem; text-transform: uppercase; letter-spacing: 0.05em; color: #10B981; margin-bottom: 8px;">Business Goals</h4>
+                <ul class="pain-point-list" id="res-goals-list">
+                  <!-- Populated via API -->
+                </ul>
+              </div>
+
+              <!-- Result 4: Growth Opportunities & Outreach Strategy -->
+              <div class="result-card">
+                <div class="result-header">
+                  <div class="result-title"><i class="ri-rocket-line accent-text"></i> Growth & Sales Strategy</div>
+                </div>
+                <h4 style="font-size: 0.8125rem; text-transform: uppercase; letter-spacing: 0.05em; color: #F59E0B; margin-bottom: 8px;">Growth Opportunities</h4>
+                <ul class="pain-point-list" id="res-opportunities-list" style="margin-bottom: 20px;">
+                  <!-- Populated via API -->
+                </ul>
+                <h4 style="font-size: 0.8125rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent); margin-bottom: 8px;">Sales Outreach Playbook</h4>
+                <div style="font-size: 0.875rem; line-height: 1.5; color: var(--text-light); background: rgba(15, 23, 42, 0.4); padding: 12px; border-radius: 6px; border: 1px solid var(--border-color); white-space: pre-wrap;" id="res-strategy">
+                  Strategy goes here...
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- TAB 3: AI ANALYSIS -->
+          <div id="tab-analysis" class="dash-tab-content">
+            <div style="margin-bottom: 24px;">
+              <h2>AI Intelligence & Signal Monitor</h2>
+              <p style="color: var(--text-muted); font-size: 0.9375rem;">Deep dive into automated company tech stack detection & buying triggers.</p>
+            </div>
+            <div class="result-card">
+              <h3>Live Signal Monitor</h3>
+              <p style="color: var(--text-muted); margin-top: 8px;">Run a company research analysis to populate live domain signal feed.</p>
+            </div>
+          </div>
+
+          <!-- TAB 4: CONTENT GENERATOR -->
+          <div id="tab-generator" class="dash-tab-content">
+            <div style="margin-bottom: 24px;">
+              <h2>Sales Content & Pitch Generator</h2>
+              <p style="color: var(--text-muted); font-size: 0.9375rem;">Create hyper-personalized outbound content powered by Groq AI and SQLite context.</p>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 24px;" class="generator-grid">
+              
+              <!-- Form Panel -->
+              <div class="form-card" style="height: fit-content;">
+                <div class="form-group" style="margin-bottom: 16px;">
+                  <label>Target Company</label>
+                  <select id="gen-company-select" class="form-control">
+                    <option value="">-- Select Analyzed Company --</option>
+                  </select>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 16px;">
+                  <label>Content Type</label>
+                  <select id="gen-type-select" class="form-control">
+                    <option value="Cold Email">Cold Email</option>
+                    <option value="Follow-up Email">Follow-up Email</option>
+                    <option value="LinkedIn Connection Request">LinkedIn Connection Request</option>
+                    <option value="LinkedIn DM">LinkedIn DM</option>
+                    <option value="Sales Pitch">Sales Pitch</option>
+                    <option value="Discovery Call Script">Discovery Call Script</option>
+                    <option value="Value Proposition">Value Proposition</option>
+                    <option value="Meeting Request">Meeting Request</option>
+                  </select>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 16px;">
+                  <label>Desired Tone</label>
+                  <select id="gen-tone-select" class="form-control">
+                    <option value="Professional">Professional</option>
+                    <option value="Friendly">Friendly</option>
+                    <option value="Consultative">Consultative</option>
+                    <option value="Persuasive">Persuasive</option>
+                  </select>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 16px;">
+                  <label>Output Length</label>
+                  <select id="gen-length-select" class="form-control">
+                    <option value="Short">Short</option>
+                    <option value="Medium" selected>Medium</option>
+                    <option value="Long">Long</option>
+                  </select>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 20px;">
+                  <label>Custom Focus / Prompt</label>
+                  <textarea id="gen-prompt-input" class="form-control" style="min-height: 80px; resize: vertical;" placeholder="e.g. Focus on our 30-day free trial, emphasize SOC2 compliance, keep it direct"></textarea>
+                </div>
+
+                <button class="btn btn-primary" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;" onclick="handleContentGeneration()">
+                  <i class="ri-sparkling-fill"></i> Generate Content
+                </button>
+              </div>
+
+              <!-- Output Panel -->
+              <div class="form-card" style="display: flex; flex-direction: column;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+                  <h3 style="font-size: 1.1rem; color: var(--text-light); display: flex; align-items: center; gap: 8px;">
+                    <i class="ri-file-text-line accent-text"></i> Generated Output
+                  </h3>
+                  <!-- Toolbar Action Buttons -->
+                  <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <button type="button" class="btn btn-secondary" style="padding: 6px 10px; font-size: 0.75rem; display: flex; align-items: center; gap: 4px;" onclick="copyGeneratorContent()">
+                      <i class="ri-file-copy-line"></i> Copy
+                    </button>
+                    <button type="button" class="btn btn-secondary" style="padding: 6px 10px; font-size: 0.75rem; display: flex; align-items: center; gap: 4px;" id="btn-edit-gen" onclick="toggleEditGeneratorContent()">
+                      <i class="ri-edit-2-line"></i> Edit
+                    </button>
+                    <button type="button" class="btn btn-secondary" style="padding: 6px 10px; font-size: 0.75rem; display: flex; align-items: center; gap: 4px;" id="btn-save-gen" onclick="saveGeneratorContent()">
+                      <i class="ri-save-line"></i> Save
+                    </button>
+                    <button type="button" class="btn btn-secondary" style="padding: 6px 10px; font-size: 0.75rem; display: flex; align-items: center; gap: 4px;" onclick="downloadGeneratorContent()">
+                      <i class="ri-download-line"></i> Download
+                    </button>
+                    <button type="button" class="btn btn-primary" style="padding: 6px 10px; font-size: 0.75rem; display: flex; align-items: center; gap: 4px;" onclick="regenerateGeneratorContent()">
+                      <i class="ri-refresh-line"></i> Regenerate
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Preview Area -->
+                <div id="gen-output-preview" style="display: block; font-size: 0.9375rem; line-height: 1.6; color: var(--text-light); background: rgba(15, 23, 42, 0.4); padding: 18px; border-radius: 8px; border: 1px solid var(--border-color); min-height: 250px; white-space: pre-wrap; flex-grow: 1;">Select parameters on the left and click 'Generate Content' to view AI copywriter results.</div>
+
+                <!-- Textarea Editor Area -->
+                <textarea id="gen-output-editor" class="form-control" style="display: none; font-size: 0.9375rem; line-height: 1.6; color: var(--text-light); background: rgba(15, 23, 42, 0.4); padding: 18px; border-radius: 8px; border: 1px solid var(--border-color); min-height: 250px; resize: vertical; flex-grow: 1; font-family: inherit;"></textarea>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- TAB 5: SAVED LEADS -->
+          <div id="tab-leads" class="dash-tab-content">
+            <div style="margin-bottom: 24px;">
+              <h2>Saved Lead Accounts</h2>
+              <p style="color: var(--text-muted); font-size: 0.9375rem;">Manage your high-intent qualified leads and pipeline opportunities stored in SQLite.</p>
+            </div>
+            <div class="table-card">
+              <div class="table-responsive">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Company</th>
+                      <th>Website</th>
+                      <th>Industry</th>
+                      <th>Lead Score</th>
+                      <th>Added Date</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="saved-leads-table-body">
+                    <!-- Populated dynamically via API -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 6: REPORTS -->
+          <div id="tab-reports" class="dash-tab-content">
+            <div style="margin-bottom: 24px;">
+              <h2>Sales Reports & Export</h2>
+              <p style="color: var(--text-muted); font-size: 0.9375rem;">Download PDF & CSV reports of AI research insights.</p>
+            </div>
+            <div class="form-card" style="text-align: center; padding: 60px 20px;">
+              <i class="ri-file-chart-line" style="font-size: 3rem; color: var(--accent);"></i>
+              <h3 style="margin-top: 16px;">Export Executive Summary</h3>
+              <p style="color: var(--text-muted); margin-bottom: 24px;">Generate an executive PDF report containing all qualified leads & pain point analyses.</p>
+              <button class="btn btn-primary" onclick="showToast('Downloading SalesIQ_Report_2026.pdf')">Download Report (PDF)</button>
+            </div>
+          </div>
+
+          <!-- TAB 7: SETTINGS -->
+          <div id="tab-settings" class="dash-tab-content">
+            <div style="margin-bottom: 24px;">
+              <h2>Platform Settings</h2>
+              <p style="color: var(--text-muted); font-size: 0.9375rem;">Configure workspace preferences and integrations.</p>
+            </div>
+            <div class="form-card">
+              <h4 style="margin-bottom: 16px;">API & Workspace Info</h4>
+              <div class="form-group" style="margin-bottom: 16px;">
+                <label>Workspace Name</label>
+                <input type="text" class="form-control" value="Harshvardhan's Workspace">
+              </div>
+              <div class="form-group" style="margin-bottom: 20px;">
+                <label>Backend Endpoint URI</label>
+                <input type="text" class="form-control" value="http://127.0.0.1:5000/api" readonly style="background:var(--bg-tertiary);">
+              </div>
+              <button class="btn btn-primary" onclick="showToast('Settings saved successfully')">Save Changes</button>
+            </div>
+          </div>
+
+        </div>
+      </main>
+
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
