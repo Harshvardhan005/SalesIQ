@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sign In — SalesIQ</title>
+  <meta name="description" content="Sign in to SalesIQ — the AI-powered B2B sales intelligence platform."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #FAFAFA;
+      --surface: #FFFFFF;
+      --text-main: #0A0A0A;
+      --text-muted: #666666;
+      --text-subtle: #999999;
+      --border: #E8E8E8;
+      --border-focus: #000000;
+      --accent: #000000;
+      --accent-hover: #1a1a1a;
+      --danger: #EE0000;
+      --danger-bg: #FFF5F5;
+      --success: #0070F3;
+      --radius: 8px;
+      --radius-lg: 12px;
+      --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-lg: 0 4px 24px rgba(0,0,0,0.08);
+      --transition: all 0.15s ease;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text-main);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .auth-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: 100vh;
+    }
+
+    /* ── LEFT PANEL ─────────────────────────────────── */
+    .brand-panel {
+      background: #000;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 48px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .brand-panel::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 20% 50%, rgba(255,255,255,0.04) 0%, transparent 60%),
+                  radial-gradient(ellipse at 80% 20%, rgba(255,255,255,0.03) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    .brand-panel-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+    }
+
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 800;
+      font-size: 1.25rem;
+      letter-spacing: -0.02em;
+      position: relative;
+    }
+
+    .brand-logo-icon {
+      width: 36px;
+      height: 36px;
+      background: #fff;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #000;
+      font-size: 1rem;
+    }
+
+    .brand-content {
+      position: relative;
+    }
+
+    .brand-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 999px;
+      padding: 4px 12px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 24px;
+    }
+
+    .brand-headline {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 2.5rem;
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.04em;
+      margin-bottom: 16px;
+    }
+
+    .brand-headline span {
+      color: rgba(255,255,255,0.4);
+    }
+
+    .brand-sub {
+      font-size: 0.9375rem;
+      color: rgba(255,255,255,0.5);
+      line-height: 1.6;
+      max-width: 360px;
+      margin-bottom: 40px;
+    }
+
+    .feature-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.875rem;
+      color: rgba(255,255,255,0.65);
+    }
+
+    .feature-icon {
+      width: 28px;
+      height: 28px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.875rem;
+      flex-shrink: 0;
+    }
+
+    .brand-footer {
+      position: relative;
+      font-size: 0.8125rem;
+      color: rgba(255,255,255,0.3);
+    }
+
+    /* ── RIGHT PANEL ─────────────────────────────────── */
+    .auth-panel {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 48px 40px;
+      background: var(--surface);
+    }
+
+    .auth-box {
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .auth-header {
+      margin-bottom: 32px;
+    }
+
+    .auth-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 1.75rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      color: var(--text-main);
+      margin-bottom: 6px;
+    }
+
+    .auth-subtitle {
+      font-size: 0.875rem;
+      color: var(--text-subtle);
+    }
+
+    /* ── Tab Toggle ─────────────────────────────────── */
+    .auth-tabs {
+      display: flex;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 3px;
+      margin-bottom: 28px;
+    }
+
+    .auth-tab {
+      flex: 1;
+      padding: 8px 0;
+      text-align: center;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-subtle);
+      cursor: pointer;
+      border-radius: 6px;
+      transition: var(--transition);
+      border: none;
+      background: transparent;
+      user-select: none;
+    }
+
+    .auth-tab.active {
+      background: var(--surface);
+      color: var(--text-main);
+      box-shadow: var(--shadow);
+    }
+
+    /* ── Forms ─────────────────────────────────── */
+    .auth-form {
+      display: none;
+      flex-direction: column;
+      gap: 16px;
+      animation: fadeSlideIn 0.2s ease;
+    }
+
+    .auth-form.visible {
+      display: flex;
+    }
+
+    @keyframes fadeSlideIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-label {
+      font-size: 0.8125rem;
+      font-weight: 500;
+      color: var(--text-main);
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 10px 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 0.9375rem;
+      font-family: 'Inter', sans-serif;
+      color: var(--text-main);
+      transition: var(--transition);
+      outline: none;
+    }
+
+    .form-input::placeholder { color: var(--text-subtle); }
+
+    .form-input:focus {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px rgba(0,0,0,0.06);
+    }
+
+    .form-input.error {
+      border-color: var(--danger);
+      background: var(--danger-bg);
+    }
+
+    .input-wrapper {
+      position: relative;
+    }
+
+    .input-toggle-btn {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-subtle);
+      font-size: 1rem;
+      padding: 2px 4px;
+      line-height: 1;
+      transition: var(--transition);
+    }
+
+    .input-toggle-btn:hover { color: var(--text-main); }
+
+    .form-hint {
+      font-size: 0.75rem;
+      color: var(--text-subtle);
+      margin-top: 2px;
+    }
+
+    .form-error {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8125rem;
+      color: var(--danger);
+      background: var(--danger-bg);
+      border: 1px solid rgba(238,0,0,0.15);
+      border-radius: var(--radius);
+      padding: 10px 12px;
+    }
+
+    .form-error.visible { display: flex; }
+
+    .form-success {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8125rem;
+      color: var(--success);
+      background: #EDF7FF;
+      border: 1px solid rgba(0,112,243,0.15);
+      border-radius: var(--radius);
+      padding: 10px 12px;
+    }
+
+    .form-success.visible { display: flex; }
+
+    /* ── Buttons ─────────────────────────────────── */
+    .btn-primary {
+      width: 100%;
+      padding: 11px 24px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 0.9375rem;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-primary:active { transform: scale(0.98); }
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--text-subtle);
+      font-size: 0.75rem;
+      margin: 4px 0;
+    }
+
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .switch-text {
+      text-align: center;
+      font-size: 0.875rem;
+      color: var(--text-subtle);
+      margin-top: 12px;
+    }
+
+    .switch-text a {
+      color: var(--text-main);
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      border-bottom: 1px solid var(--border);
+      transition: var(--transition);
+    }
+
+    .switch-text a:hover { border-color: var(--text-main); }
+
+    /* ── Spinner ─────────────────────────────────── */
+    .spinner {
+      display: none;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Responsive ─────────────────────────────── */
+    @media (max-width: 768px) {
+      .auth-layout { grid-template-columns: 1fr; }
+      .brand-panel { display: none; }
+      .auth-panel { padding: 40px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="auth-layout">
+
+  <!-- LEFT: Brand Panel -->
+  <div class="brand-panel">
+    <div class="brand-panel-grid"></div>
+
+    <div class="brand-logo">
+      <div class="brand-logo-icon"><i class="ri-bar-chart-2-fill"></i></div>
+      SalesIQ
+    </div>
+
+    <div class="brand-content">
+      <div class="brand-tag">
+        <i class="ri-sparkle-fill"></i> AI-Powered Sales Intelligence
+      </div>
+      <h1 class="brand-headline">
+        Close deals<br/><span>10× faster.</span>
+      </h1>
+      <p class="brand-sub">
+        Research any prospect in seconds, generate personalized outreach, and score leads automatically — all in one platform.
+      </p>
+      <ul class="feature-list">
+        <li class="feature-item">
+          <div class="feature-icon"><i class="ri-search-eye-line"></i></div>
+          AI company research from any URL
+        </li>
+        <li class="feature-item">
+          <div class="feature-icon"><i class="ri-edit-2-line"></i></div>
+          Personalized cold emails & LinkedIn scripts
+        </li>
+        <li class="feature-item">
+          <div class="feature-icon"><i class="ri-bar-chart-box-line"></i></div>
+          Automated ICP lead fit scoring (0–100)
+        </li>
+        <li class="feature-item">
+          <div class="feature-icon"><i class="ri-database-2-line"></i></div>
+          Full CRM — saved leads, reports & analytics
+        </li>
+      </ul>
+    </div>
+
+    <div class="brand-footer">
+      © 2025 SalesIQ. Built with Groq AI.
+    </div>
+  </div>
+
+  <!-- RIGHT: Auth Panel -->
+  <div class="auth-panel">
+    <div class="auth-box">
+
+      <div class="auth-header">
+        <h2 class="auth-title" id="auth-title">Welcome back</h2>
+        <p class="auth-subtitle" id="auth-subtitle">Sign in to your SalesIQ workspace</p>
+      </div>
+
+      <!-- Tab Switcher -->
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tab-login" onclick="switchTab('login')">Sign In</button>
+        <button class="auth-tab" id="tab-register" onclick="switchTab('register')">Create Account</button>
+      </div>
+
+      <!-- Error / Success Banners -->
+      <div class="form-error" id="form-error">
+        <i class="ri-error-warning-fill"></i>
+        <span id="error-msg"></span>
+      </div>
+      <div class="form-success" id="form-success">
+        <i class="ri-checkbox-circle-fill"></i>
+        <span id="success-msg"></span>
+      </div>
+
+      <!-- LOGIN FORM -->
+      <form class="auth-form visible" id="form-login" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label class="form-label" for="login-email">Email address</label>
+          <input class="form-input" type="email" id="login-email" placeholder="you@company.com" autocomplete="email" required/>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="login-password">Password</label>
+          <div class="input-wrapper">
+            <input class="form-input" type="password" id="login-password" placeholder="Enter your password" autocomplete="current-password" style="padding-right: 40px;" required/>
+            <button type="button" class="input-toggle-btn" onclick="togglePwd('login-password', this)">
+              <i class="ri-eye-off-line"></i>
+            </button>
+          </div>
+        </div>
+        <button type="submit" class="btn-primary" id="btn-login">
+          <span class="spinner" id="login-spinner"></span>
+          <span id="login-btn-text">Sign In</span>
+          <i class="ri-arrow-right-line" id="login-arrow"></i>
+        </button>
+        <div class="switch-text">
+          Don't have an account? <a onclick="switchTab('register')">Create one</a>
+        </div>
+      </form>
+
+      <!-- REGISTER FORM -->
+      <form class="auth-form" id="form-register" onsubmit="handleRegister(event)">
+        <div class="form-group">
+          <label class="form-label" for="reg-name">Full name</label>
+          <input class="form-input" type="text" id="reg-name" placeholder="Harshvardhan Singh" autocomplete="name" required/>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="reg-email">Work email</label>
+          <input class="form-input" type="email" id="reg-email" placeholder="you@company.com" autocomplete="email" required/>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="reg-password">Password</label>
+          <div class="input-wrapper">
+            <input class="form-input" type="password" id="reg-password" placeholder="Min. 8 characters" autocomplete="new-password" style="padding-right: 40px;" required/>
+            <button type="button" class="input-toggle-btn" onclick="togglePwd('reg-password', this)">
+              <i class="ri-eye-off-line"></i>
+            </button>
+          </div>
+          <div class="form-hint" id="pwd-strength-hint"></div>
+        </div>
+        <button type="submit" class="btn-primary" id="btn-register">
+          <span class="spinner" id="register-spinner"></span>
+          <span id="register-btn-text">Create Account</span>
+          <i class="ri-arrow-right-line" id="register-arrow"></i>
+        </button>
+        <div class="switch-text">
+          Already have an account? <a onclick="switchTab('login')">Sign in</a>
+        </div>
+      </form>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  const API = 'http://127.0.0.1:5000/api';
+
+  /* ── Tab Switching ───────────────────────────── */
+  function switchTab(tab) {
+    clearMessages();
+    const isLogin = tab === 'login';
+
+    document.getElementById('tab-login').classList.toggle('active', isLogin);
+    document.getElementById('tab-register').classList.toggle('active', !isLogin);
+    document.getElementById('form-login').classList.toggle('visible', isLogin);
+    document.getElementById('form-register').classList.toggle('visible', !isLogin);
+
+    document.getElementById('auth-title').textContent = isLogin ? 'Welcome back' : 'Create your account';
+    document.getElementById('auth-subtitle').textContent = isLogin
+      ? 'Sign in to your SalesIQ workspace'
+      : 'Start analyzing leads for free today';
+  }
+
+  /* ── Show/Hide Password ──────────────────────── */
+  function togglePwd(inputId, btn) {
+    const input = document.getElementById(inputId);
+    const icon = btn.querySelector('i');
+    const isHidden = input.type === 'password';
+    input.type = isHidden ? 'text' : 'password';
+    icon.className = isHidden ? 'ri-eye-line' : 'ri-eye-off-line';
+  }
+
+  /* ── Password Strength Hint ──────────────────── */
+  document.getElementById('reg-password').addEventListener('input', function () {
+    const v = this.value;
+    const hint = document.getElementById('pwd-strength-hint');
+    if (!v) { hint.textContent = ''; return; }
+    if (v.length < 8) {
+      hint.textContent = 'Too short — needs at least 8 characters';
+      hint.style.color = '#EE0000';
+    } else if (v.length < 12) {
+      hint.textContent = 'Good password';
+      hint.style.color = '#F5A623';
+    } else {
+      hint.textContent = 'Strong password ✓';
+      hint.style.color = '#0070F3';
+    }
+  });
+
+  /* ── Message Helpers ─────────────────────────── */
+  function showError(msg) {
+    document.getElementById('error-msg').textContent = msg;
+    document.getElementById('form-error').classList.add('visible');
+    document.getElementById('form-success').classList.remove('visible');
+  }
+
+  function showSuccess(msg) {
+    document.getElementById('success-msg').textContent = msg;
+    document.getElementById('form-success').classList.add('visible');
+    document.getElementById('form-error').classList.remove('visible');
+  }
+
+  function clearMessages() {
+    document.getElementById('form-error').classList.remove('visible');
+    document.getElementById('form-success').classList.remove('visible');
+  }
+
+  /* ── Loading State ───────────────────────────── */
+  function setLoading(btnId, spinnerId, arrowId, textId, loading, label) {
+    document.getElementById(btnId).disabled = loading;
+    document.getElementById(spinnerId).style.display = loading ? 'block' : 'none';
+    document.getElementById(arrowId).style.display = loading ? 'none' : 'inline';
+    document.getElementById(textId).textContent = loading ? 'Please wait...' : label;
+  }
+
+  /* ── Login Handler ───────────────────────────── */
+  async function handleLogin(e) {
+    e.preventDefault();
+    clearMessages();
+    const email = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value;
+
+    setLoading('btn-login', 'login-spinner', 'login-arrow', 'login-btn-text', true, 'Sign In');
+
+    try {
+      const res = await fetch(`${API}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        localStorage.setItem('salesiq_user', JSON.stringify(data.data));
+        showSuccess(`Welcome back, ${data.data.name}! Redirecting...`);
+        setTimeout(() => { window.location.href = 'index.html'; }, 1200);
+      } else {
+        showError(data.message || 'Login failed. Please try again.');
+      }
+    } catch (err) {
+      showError('Could not connect to server. Is the backend running?');
+    } finally {
+      setLoading('btn-login', 'login-spinner', 'login-arrow', 'login-btn-text', false, 'Sign In');
+    }
+  }
+
+  /* ── Register Handler ────────────────────────── */
+  async function handleRegister(e) {
+    e.preventDefault();
+    clearMessages();
+    const name = document.getElementById('reg-name').value.trim();
+    const email = document.getElementById('reg-email').value.trim();
+    const password = document.getElementById('reg-password').value;
+
+    if (password.length < 8) {
+      showError('Password must be at least 8 characters long.');
+      return;
+    }
+
+    setLoading('btn-register', 'register-spinner', 'register-arrow', 'register-btn-text', true, 'Create Account');
+
+    try {
+      const res = await fetch(`${API}/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password })
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        localStorage.setItem('salesiq_user', JSON.stringify(data.data));
+        showSuccess(`Account created! Welcome, ${data.data.name}. Redirecting...`);
+        setTimeout(() => { window.location.href = 'index.html'; }, 1400);
+      } else {
+        showError(data.message || 'Registration failed. Please try again.');
+      }
+    } catch (err) {
+      showError('Could not connect to server. Is the backend running?');
+    } finally {
+      setLoading('btn-register', 'register-spinner', 'register-arrow', 'register-btn-text', false, 'Create Account');
+    }
+  }
+</script>
+</body>
+</html>

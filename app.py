@@ -1,5 +1,6 @@
 import random
 import os
+import bcrypt
 from dotenv import load_dotenv
 
 # Load environment variables from .env
@@ -287,6 +288,55 @@ def delete_lead(lead_id):
         return api_response(success=False, message=f"Lead #{lead_id} not found", status_code=404)
     except Exception as e:
         return api_response(success=False, message=f"Failed to delete lead: {str(e)}", status_code=500)
+
+@app.route("/api/auth/register", methods=["POST"])
+def register():
+    payload = request.get_json() or {}
+    name = payload.get("name", "").strip()
+    email = payload.get("email", "").strip().lower()
+    password = payload.get("password", "").strip()
+
+    if not name:
+        return api_response(success=False, message="Name is required", status_code=400)
+    if not email or "@" not in email:
+        return api_response(success=False, message="A valid email is required", status_code=400)
+    if len(password) < 8:
+        return api_response(success=False, message="Password must be at least 8 characters", status_code=400)
+
+    try:
+        password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+        user_id = DatabaseService.create_user(name, email, password_hash)
+        return api_response(success=True, data={"id": user_id, "name": name, "email": email},
+                            message="Account created successfully", status_code=201)
+    except ValueError as ve:
+        return api_response(success=False, message=str(ve), status_code=409)
+    except Exception as e:
+        return api_response(success=False, message=f"Registration failed: {str(e)}", status_code=500)
+
+
+@app.route("/api/auth/login", methods=["POST"])
+def login():
+    payload = request.get_json() or {}
+    email = payload.get("email", "").strip().lower()
+    password = payload.get("password", "").strip()
+
+    if not email or not password:
+        return api_response(success=False, message="Email and password are required", status_code=400)
+
+    try:
+        user = DatabaseService.get_user_by_email(email)
+        if not user:
+            return api_response(success=False, message="No account found with this email", status_code=404)
+
+        is_valid = bcrypt.checkpw(password.encode('utf-8'), user['password_hash'].encode('utf-8'))
+        if not is_valid:
+            return api_response(success=False, message="Incorrect password", status_code=401)
+
+        return api_response(success=True, data={"id": user['id'], "name": user['name'], "email": user['email']},
+                            message="Login successful")
+    except Exception as e:
+        return api_response(success=False, message=f"Login failed: {str(e)}", status_code=500)
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=Config.PORT, debug=Config.DEBUG)

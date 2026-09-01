@@ -76,6 +76,17 @@ def init_db():
         )
     ''')
 
+    # Table 4: Users (Authentication)
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            email TEXT NOT NULL UNIQUE,
+            password_hash TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+
     # Insert default seed data if database is empty
     cursor.execute("SELECT COUNT(*) as count FROM reports")
     if cursor.fetchone()['count'] == 0:

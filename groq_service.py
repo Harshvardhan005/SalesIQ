@@ -5,11 +5,11 @@ import requests
 
 class GroqService:
     API_URL = "https://api.groq.com/openai/v1/chat/completions"
-    DEFAULT_MODEL = "llama-3.3-70b-versatile"
+    DEFAULT_MODEL = "openai/gpt-oss-20b"
     TIMEOUT = 25  # seconds
 
     @classmethod
-    def analyze_company(cls, company_name, website, industry, product_offered="", target_customer="", notes=""):
+    def analyze_company(cls, company_name, website, industry, product_offered="", target_customer="", notes="", scraped_content="", information_source=""):
         """
         Queries Groq AI completions API to perform a structured B2B sales analysis.
         Returns a dictionary conforming to the requested schema.
@@ -38,6 +38,8 @@ Analyze the target company based on the following firmographic inputs:
 - Product/Service We Offer Them: {product_offered or 'Our B2B Solution'}
 - Target Buyer Persona/Title: {target_customer or 'Revenue/Operational Leaders'}
 - Custom Research Notes: {notes or 'None provided.'}
+- Information Source: {information_source or 'None'}
+- Scraped Website Content: {scraped_content[:1500] if scraped_content else 'None available.'}
 
 Analyze the target company and return exactly this JSON structure:
 {{

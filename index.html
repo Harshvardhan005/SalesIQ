@@ -35,8 +35,12 @@
         </ul>
 
         <div class="nav-actions">
-          <button class="btn btn-secondary btn-sm" onclick="switchMainView('dashboard')">Sign In</button>
-          <button class="btn btn-primary btn-sm" onclick="switchMainView('dashboard')">Launch App <i class="ri-arrow-right-line"></i></button>
+          <div id="nav-user-pill" style="display:none; align-items:center; gap:8px; background:var(--bg-tertiary); border:1px solid var(--border-color); border-radius:999px; padding:5px 14px 5px 6px; font-size:0.875rem; font-weight:500; color:var(--text-main);">
+            <div style="width:26px; height:26px; background:var(--accent); border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-size:0.75rem; font-weight:700;" id="nav-user-avatar">H</div>
+            <span id="nav-user-name">Harshvardhan</span>
+          </div>
+          <button id="nav-signin-btn" class="btn btn-secondary btn-sm" onclick="window.location.href='login.html'">Sign In</button>
+          <button class="btn btn-primary btn-sm" onclick="window.location.href='login.html'">Launch App <i class="ri-arrow-right-line"></i></button>
         </div>
       </div>
     </header>
@@ -731,10 +735,10 @@
                 </div>
 
                 <!-- Preview Area -->
-                <div id="gen-output-preview" style="display: block; font-size: 0.9375rem; line-height: 1.6; color: var(--text-light); background: rgba(15, 23, 42, 0.4); padding: 18px; border-radius: 8px; border: 1px solid var(--border-color); min-height: 250px; white-space: pre-wrap; flex-grow: 1;">Select parameters on the left and click 'Generate Content' to view AI copywriter results.</div>
+                <div id="gen-output-preview" style="display: block; font-size: 0.9375rem; line-height: 1.6; color: var(--text-main); background: var(--surface); padding: 18px; border-radius: 8px; border: 1px solid var(--border-color); min-height: 250px; white-space: pre-wrap; flex-grow: 1;">Select parameters on the left and click 'Generate Content' to view AI copywriter results.</div>
 
                 <!-- Textarea Editor Area -->
-                <textarea id="gen-output-editor" class="form-control" style="display: none; font-size: 0.9375rem; line-height: 1.6; color: var(--text-light); background: rgba(15, 23, 42, 0.4); padding: 18px; border-radius: 8px; border: 1px solid var(--border-color); min-height: 250px; resize: vertical; flex-grow: 1; font-family: inherit;"></textarea>
+                <textarea id="gen-output-editor" class="form-control" style="display: none; font-size: 0.9375rem; line-height: 1.6; color: var(--text-main); background: var(--surface); padding: 18px; border-radius: 8px; border: 1px solid var(--border-color); min-height: 250px; resize: vertical; flex-grow: 1; font-family: inherit;"></textarea>
               </div>
 
             </div>
@@ -798,6 +802,9 @@
                 <input type="text" class="form-control" value="http://127.0.0.1:5000/api" readonly style="background:var(--bg-tertiary);">
               </div>
               <button class="btn btn-primary" onclick="showToast('Settings saved successfully')">Save Changes</button>
+              <button class="btn btn-secondary" style="margin-left:8px; color: var(--danger); border-color: var(--danger);" onclick="signOut()">
+                <i class="ri-logout-box-r-line"></i> Sign Out
+              </button>
             </div>
           </div>
 

@@ -176,3 +176,34 @@ class DatabaseService:
             "avg_lead_score": avg_lead_score,
             "recent_reports": recent_reports
         }
+
+    # ── User Authentication ────────────────────────────────────────────────────
+
+    @staticmethod
+    def create_user(name, email, password_hash):
+        """Insert a new user. Raises ValueError on duplicate email."""
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        try:
+            cursor.execute(
+                "INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)",
+                (name, email, password_hash)
+            )
+            conn.commit()
+            user_id = cursor.lastrowid
+        except Exception as e:
+            conn.close()
+            raise ValueError(f"Email already registered: {str(e)}")
+        conn.close()
+        return user_id
+
+    @staticmethod
+    def get_user_by_email(email):
+        """Fetch a user row by email. Returns a dict or None."""
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM users WHERE email = ? LIMIT 1", (email,))
+        row = cursor.fetchone()
+        conn.close()
+        return dict(row) if row else None
+

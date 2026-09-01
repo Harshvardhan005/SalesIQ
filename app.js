@@ -2,6 +2,36 @@
 
 const API_BASE_URL = "http://127.0.0.1:5000/api";
 
+// ── Auth Guard ──────────────────────────────────────────────────────────────
+// Redirect to login if no session found in localStorage
+const _currentUser = JSON.parse(localStorage.getItem('salesiq_user') || 'null');
+if (!_currentUser) {
+  window.location.href = 'login.html';
+}
+
+// Populate navbar with logged-in user's name
+(function populateNavUser() {
+  const user = _currentUser;
+  if (!user) return;
+  const pill = document.getElementById('nav-user-pill');
+  const avatar = document.getElementById('nav-user-avatar');
+  const nameEl = document.getElementById('nav-user-name');
+  const signinBtn = document.getElementById('nav-signin-btn');
+  if (pill && nameEl && avatar) {
+    nameEl.textContent = user.name || user.email;
+    avatar.textContent = (user.name || user.email || '?')[0].toUpperCase();
+    pill.style.display = 'flex';
+  }
+  if (signinBtn) signinBtn.style.display = 'none';
+})();
+
+// Sign Out — clear session and redirect to login
+function signOut() {
+  localStorage.removeItem('salesiq_user');
+  window.location.href = 'login.html';
+}
+// ────────────────────────────────────────────────────────────────────────────
+
 // Cached Data
 let cachedReports = [];
 let cachedLeads = [];
