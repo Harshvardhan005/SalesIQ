@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 # Load environment variables from .env
 load_dotenv(os.path.join(os.path.dirname(__file__), '.env'))
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from config import Config
 from database import init_db
@@ -46,9 +46,24 @@ def server_error(e):
 
 # Routes
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 @app.route("/", methods=["GET"])
 def index():
-    return api_response(success=True, message="SalesIQ Backend API Service is operational", data={"version": "1.0.0"})
+    return send_from_directory(BASE_DIR, "login.html")
+
+@app.route("/login", methods=["GET"])
+def login_page():
+    return send_from_directory(BASE_DIR, "login.html")
+
+@app.route("/dashboard", methods=["GET"])
+def dashboard_page():
+    return send_from_directory(BASE_DIR, "index.html")
+
+@app.route("/<path:filename>", methods=["GET"])
+def static_files(filename):
+    return send_from_directory(BASE_DIR, filename)
+
 
 @app.route("/api/dashboard-stats", methods=["GET"])
 def get_stats():

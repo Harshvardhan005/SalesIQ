@@ -3,10 +3,10 @@
 const API_BASE_URL = "http://127.0.0.1:5000/api";
 
 // ── Auth Guard ──────────────────────────────────────────────────────────────
-// Redirect to login if no session found in localStorage
 const _currentUser = JSON.parse(localStorage.getItem('salesiq_user') || 'null');
-if (!_currentUser) {
-  window.location.href = 'login.html';
+
+function isLoggedIn() {
+  return !!JSON.parse(localStorage.getItem('salesiq_user') || 'null');
 }
 
 // Populate navbar with logged-in user's name
@@ -125,11 +125,25 @@ async function fetchLeads() {
 }
 
 // View Switching: Landing Page vs Dashboard (SPA)
+// Launch App: go to dashboard if logged in, else go to login
+function launchApp() {
+  if (isLoggedIn()) {
+    switchMainView('dashboard');
+  } else {
+    window.location.href = 'login.html';
+  }
+}
+
 function switchMainView(viewName, targetTab = null) {
   const landingView = document.getElementById("landing-view");
   const dashboardView = document.getElementById("dashboard-view");
 
   if (viewName === "dashboard") {
+    // Require login to access dashboard
+    if (!isLoggedIn()) {
+      window.location.href = 'login.html';
+      return;
+    }
     landingView.classList.remove("active");
     dashboardView.classList.add("active");
     window.scrollTo({ top: 0, behavior: "smooth" });
