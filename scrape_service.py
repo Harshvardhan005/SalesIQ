@@ -15,8 +15,25 @@ class ScrapeService:
             url = 'https://' + url
         try:
             parsed = urlparse(url)
-            if not parsed.netloc:
+            hostname = parsed.hostname
+            if not parsed.netloc or not hostname:
                 return None
+            
+            # SSRF Protection: Block localhost and private/reserved IP ranges
+            hostname_lower = hostname.lower()
+            if hostname_lower in ['localhost', '127.0.0.1', '0.0.0.0', '::1'] or hostname_lower.endswith('.local') or hostname_lower.endswith('.internal'):
+                return None
+            
+            # Block internal IPv4 private ranges (10.x.x.x, 172.16-31.x.x, 192.168.x.x, 169.254.x.x)
+            import ipaddress
+            try:
+                ip = ipaddress.ip_address(hostname)
+                if ip.is_private or ip.is_loopback or ip.is_link_local or ip.is_reserved:
+                    return None
+            except ValueError:
+                # Hostname is a regular domain string (e.g. google.com)
+                pass
+
             return url
         except:
             return None

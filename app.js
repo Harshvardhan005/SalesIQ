@@ -537,7 +537,7 @@ async function handleResearchSubmit(event) {
   resultsEl.style.display = "none";
   loadingEl.scrollIntoView({ behavior: "smooth" });
 
-  statusText.innerText = `Analyzing firmographic signals for ${compName} using Groq...`;
+  statusText.innerText = `Analyzing firmographic signals for ${compName} using AI...`;
 
   try {
     const res = await apiRequest("/analyze-company", "POST", {
@@ -599,7 +599,7 @@ async function handleContentGeneration() {
   const btnSave = document.getElementById("btn-save-gen");
 
   if (previewEl) {
-    previewEl.innerText = `Generating ${contentType} for ${companyName} via Groq AI... Please wait...`;
+    previewEl.innerText = `Generating ${contentType} for ${companyName} via AI... Please wait...`;
     previewEl.style.display = "block";
   }
   if (editorEl) editorEl.style.display = "none";

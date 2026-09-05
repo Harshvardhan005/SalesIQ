@@ -28,7 +28,7 @@
           ↓
 🌐 Research Public Company Information
           ↓
-🤖 Analyze with Groq AI
+🤖 Analyze with AI
           ↓
 🧠 Identify Insights & Pain Points
           ↓
@@ -37,7 +37,7 @@
 ✉️ Create Personalized Outreach
 ```
 
-SalesIQ can extract publicly available information from company websites and use **Groq AI** to transform that information into structured sales intelligence.
+SalesIQ can extract publicly available information from company websites and use **AI** to transform that information into structured sales intelligence.
 
 > ⚠️ AI-generated insights may contain estimates. Important company information should always be verified before making business decisions.
 
@@ -246,6 +246,6 @@ If you like **SalesIQ**, consider giving the repository a ⭐!
 </p>
 
 <p align="center">
-  Built with ❤️ using HTML • CSS • JavaScript • Python • Flask • Groq AI
+  Built with ❤️ using HTML • CSS • JavaScript • Python • Flask • AI
 </p>
 

@@ -31,10 +31,24 @@ def api_response(success=True, data=None, message="", status_code=200):
         "data": data
     }), status_code
 
+# Security Headers Middleware
+@app.after_request
+def add_security_headers(response):
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'SAMEORIGIN'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+    response.headers['Permissions-Policy'] = 'geolocation=(), microphone=(), camera=()'
+    return response
+
 # Error Handlers
 @app.errorhandler(400)
 def bad_request(e):
     return api_response(success=False, message=str(e.description or "Bad request"), status_code=400)
+
+@app.errorhandler(413)
+def request_entity_too_large(e):
+    return api_response(success=False, message="Payload size exceeds maximum allowed limit (5MB).", status_code=413)
 
 @app.errorhandler(404)
 def not_found(e):
