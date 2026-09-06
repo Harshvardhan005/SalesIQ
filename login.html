@@ -567,7 +567,9 @@
 </div>
 
 <script>
-  const API = 'http://127.0.0.1:5000/api';
+  const API = (window.location.protocol.startsWith('http') && window.location.port !== '5500' && window.location.port !== '3000' && !window.location.origin.includes('file:'))
+    ? `${window.location.origin}/api`
+    : 'http://127.0.0.1:5000/api';
 
   /* ── Tab Switching ───────────────────────────── */
   function switchTab(tab) {

@@ -1,6 +1,8 @@
 /* SalesIQ — Interactive Vanilla JavaScript Engine (API Connected) */
 
-const API_BASE_URL = "http://127.0.0.1:5000/api";
+const API_BASE_URL = (window.location.protocol.startsWith('http') && window.location.port !== '5500' && window.location.port !== '3000' && !window.location.origin.includes('file:'))
+  ? `${window.location.origin}/api`
+  : "http://127.0.0.1:5000/api";
 
 // ── Auth Guard ──────────────────────────────────────────────────────────────
 const _currentUser = JSON.parse(localStorage.getItem('salesiq_user') || 'null');
@@ -38,6 +40,8 @@ let cachedLeads = [];
 
 // Document Initialization
 document.addEventListener("DOMContentLoaded", () => {
+  const uriInput = document.getElementById("settings-backend-uri");
+  if (uriInput) uriInput.value = API_BASE_URL;
   fetchDashboardStats();
   fetchReports();
   fetchLeads();
