@@ -576,8 +576,8 @@
 
               <!-- Toolbar -->
               <div class="analysis-toolbar"
-                style="grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; background: rgba(30, 41, 59, 0.4); padding: 12px 18px; border-radius: 8px; border: 1px solid var(--border-color); gap: 12px; flex-wrap: wrap;">
-                <div style="font-weight: 600; color: var(--text-light); display: flex; align-items: center; gap: 8px;">
+                style="grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; background: var(--bg-secondary); padding: 12px 18px; border-radius: var(--radius-lg); border: 1px solid var(--border-color); gap: 12px; flex-wrap: wrap;">
+                <div style="font-weight: 600; color: var(--text-main); display: flex; align-items: center; gap: 8px;">
                   <i class="ri-sparkling-2-line accent-text" style="font-size: 1.2rem;"></i>
                   <span id="toolbar-status-title" style="font-size: 0.9375rem;">Company Intelligence Report</span>
                 </div>
@@ -622,7 +622,7 @@
                     <span class="score-text" id="res-score">0</span>
                   </div>
                   <div>
-                    <h4 style="font-size: 1.125rem; margin-bottom: 4px; color: var(--text-light);" id="res-lead-name">
+                    <h4 style="font-size: 1.125rem; font-weight: 700; margin-bottom: 4px; color: var(--text-main);" id="res-lead-name">
                       Company Name</h4>
                     <p style="font-size: 0.875rem; color: var(--text-muted);" id="res-lead-industry">Industry Name</p>
                     <a href="#" target="_blank" id="res-lead-website"
@@ -638,7 +638,7 @@
                   <div class="result-title"><i class="ri-building-line accent-text"></i> Company Profile & Products
                   </div>
                 </div>
-                <div style="font-size: 0.9375rem; line-height: 1.5; color: var(--text-light); margin-bottom: 16px;"
+                <div style="font-size: 0.9375rem; line-height: 1.6; color: var(--text-main); margin-bottom: 16px;"
                   id="res-overview">
                   Overview goes here...
                 </div>
@@ -681,11 +681,10 @@
                   <!-- Populated via API -->
                 </ul>
                 <h4
-                  style="font-size: 0.8125rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent); margin-bottom: 8px;">
+                  style="font-size: 0.8125rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-main); margin-bottom: 8px;">
                   Sales Outreach Playbook</h4>
-                <div
-                  style="font-size: 0.875rem; line-height: 1.5; color: var(--text-light); background: rgba(15, 23, 42, 0.4); padding: 12px; border-radius: 6px; border: 1px solid var(--border-color); white-space: pre-wrap;"
-                  id="res-strategy">
+                <div class="output-code-block" id="res-strategy"
+                  style="font-size: 0.875rem; line-height: 1.6; color: var(--text-main); background: var(--bg-secondary); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--border-color); white-space: pre-wrap;">
                   Strategy goes here...
                 </div>
               </div>
@@ -777,7 +776,7 @@
                 <div
                   style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; flex-wrap: wrap; gap: 10px;">
                   <h3
-                    style="font-size: 1.1rem; color: var(--text-light); display: flex; align-items: center; gap: 8px;">
+                    style="font-size: 1.1rem; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 8px;">
                     <i class="ri-file-text-line accent-text"></i> Generated Output
                   </h3>
                   <!-- Toolbar Action Buttons -->

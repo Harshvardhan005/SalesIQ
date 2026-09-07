@@ -10,9 +10,9 @@
   --bg-surface: #FFFFFF;
   
   --text-main: #000000;
-  --text-muted: #666666;
-  --text-subtle: #888888;
-  --text-light: #A0A0A0;
+  --text-muted: #4B5563;
+  --text-subtle: #6B7280;
+  --text-light: #1F2937;
   
   --accent: #000000;
   --accent-hover: #333333;
@@ -1149,6 +1149,8 @@ textarea.form-control {
   border-radius: var(--radius-md);
   border: 1px solid var(--border-color);
   font-size: 0.875rem;
+  color: var(--text-main);
+  line-height: 1.5;
 }
 
 .pain-icon {
@@ -1157,15 +1159,16 @@ textarea.form-control {
   margin-top: 2px;
 }
 
-.output-code-block {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
+.output-code-block,
+#res-strategy {
+  background: var(--bg-secondary) !important;
+  border: 1px solid var(--border-color) !important;
   border-radius: var(--radius-md);
   padding: 16px;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   font-size: 0.875rem;
   line-height: 1.7;
-  color: var(--text-main);
+  color: var(--text-main) !important;
   white-space: pre-wrap;
 }
 
