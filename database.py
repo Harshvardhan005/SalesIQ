@@ -92,6 +92,18 @@ def init_db():
     if cursor.fetchone()['count'] == 0:
         seed_database(cursor)
 
+    # Ensure default user accounts exist for seamless deployment login
+    cursor.execute("SELECT COUNT(*) as count FROM users")
+    if cursor.fetchone()['count'] == 0:
+        cursor.execute('''
+            INSERT INTO users (name, email, password_hash)
+            VALUES (?, ?, ?)
+        ''', ('Harshvardhan Kumar', 'hv14835@gmail.com', '$2b$12$SO8aeNoA52d.wzgefTxRc.ITz86O12S933pLN1cZ7nKtErBNb1CBm'))
+        cursor.execute('''
+            INSERT INTO users (name, email, password_hash)
+            VALUES (?, ?, ?)
+        ''', ('Demo User', 'demo@salesiq.ai', '$2b$12$Yo9g8FGNByX3QBQyfGXVqOGM9Kc6sZ3aAZetwvC/s8rx1QDm0Hdmq'))
+
     conn.commit()
     conn.close()
 
