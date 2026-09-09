@@ -48,9 +48,30 @@
             In</button>
           <button class="btn btn-primary btn-sm" onclick="launchApp()">Launch App <i
               class="ri-arrow-right-line"></i></button>
+          <!-- Hamburger (mobile only) -->
+          <button class="hamburger-btn" id="hamburger-btn" onclick="openMobileNav()" aria-label="Open navigation">
+            <i class="ri-menu-line"></i>
+          </button>
         </div>
       </div>
     </header>
+
+    <!-- Mobile Nav Drawer -->
+    <div class="mobile-nav-drawer" id="mobile-nav-drawer" role="dialog" aria-modal="true" aria-label="Navigation">
+      <div class="mobile-nav-overlay" onclick="closeMobileNav()"></div>
+      <div class="mobile-nav-panel">
+        <div class="mobile-nav-close">
+          <button onclick="closeMobileNav()" aria-label="Close menu"><i class="ri-close-line"></i></button>
+        </div>
+        <a href="/" class="mobile-nav-link" onclick="closeMobileNav()"><i class="ri-home-4-line"></i> Home</a>
+        <a href="#features" class="mobile-nav-link" onclick="closeMobileNav()"><i class="ri-grid-line"></i> Features</a>
+        <a href="#how-it-works" class="mobile-nav-link" onclick="closeMobileNav()"><i class="ri-question-line"></i> How It Works</a>
+        <a href="#stats" class="mobile-nav-link" onclick="closeMobileNav()"><i class="ri-bar-chart-2-line"></i> Metrics</a>
+        <div class="mobile-nav-divider"></div>
+        <button class="mobile-nav-link" onclick="closeMobileNav(); switchMainView('dashboard')"><i class="ri-dashboard-3-line"></i> Dashboard</button>
+        <button class="mobile-nav-link primary" onclick="closeMobileNav(); window.location.href='login.html'"><i class="ri-login-box-line"></i> Sign In</button>
+      </div>
+    </div>
 
     <!-- 2. Hero Section -->
     <section class="hero">
@@ -342,8 +363,11 @@
   <div id="dashboard-view" class="view-section">
     <div class="dashboard-layout">
 
+      <!-- Sidebar overlay (mobile) -->
+      <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
       <!-- Sidebar -->
-      <aside class="sidebar">
+      <aside class="sidebar" id="dashboard-sidebar">
         <div class="sidebar-header">
           <a href="/" class="brand-logo" onclick="switchMainView('landing')" style="text-decoration:none;">
             <img src="logo.png" alt="SalesIQ" style="height:40px; width:auto; object-fit:contain;">
@@ -388,6 +412,11 @@
 
         <!-- Top Bar -->
         <header class="dashboard-topbar">
+          <!-- Sidebar toggle (mobile only) -->
+          <button class="sidebar-toggle-btn" id="sidebar-toggle-btn" onclick="openSidebar()" aria-label="Open sidebar">
+            <i class="ri-menu-line"></i>
+          </button>
+
           <div class="search-input-box">
             <i class="ri-search-line"></i>
             <input type="text" id="global-search-input" placeholder="Search companies, leads, reports..."
@@ -396,11 +425,11 @@
 
           <div class="topbar-actions">
             <button class="btn btn-secondary btn-sm" onclick="switchMainView('landing')">
-              <i class="ri-home-4-line"></i> Back to Home
+              <i class="ri-home-4-line"></i><span> Back to Home</span>
             </button>
             <button class="btn btn-primary btn-sm"
               onclick="switchDashTab('research', document.querySelectorAll('.sidebar-item')[1])">
-              <i class="ri-add-line"></i> New Research
+              <i class="ri-add-line"></i><span> New Research</span>
             </button>
           </div>
         </header>
@@ -714,7 +743,7 @@
                 powered by AI and SQLite context.</p>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 24px;" class="generator-grid">
+            <div class="generator-grid" style="display: grid; grid-template-columns: 1fr 2fr; gap: 24px;">
 
               <!-- Form Panel -->
               <div class="form-card" style="height: fit-content;">
@@ -903,6 +932,44 @@
   <div class="toast-container" id="toast-container"></div>
 
   <script src="app.js"></script>
+
+  <script>
+    /* ── Mobile Nav Drawer ───────────────────────── */
+    function openMobileNav() {
+      document.getElementById('mobile-nav-drawer').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeMobileNav() {
+      document.getElementById('mobile-nav-drawer').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+    // Close on Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closeMobileNav();
+        closeSidebar();
+      }
+    });
+
+    /* ── Mobile Dashboard Sidebar ────────────────── */
+    function openSidebar() {
+      document.getElementById('dashboard-sidebar').classList.add('open');
+      document.getElementById('sidebar-overlay').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeSidebar() {
+      document.getElementById('dashboard-sidebar').classList.remove('open');
+      document.getElementById('sidebar-overlay').classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    // Auto-close sidebar when a tab is switched on mobile
+    document.querySelectorAll('.sidebar-item').forEach(function(item) {
+      item.addEventListener('click', function() {
+        if (window.innerWidth <= 768) closeSidebar();
+      });
+    });
+  </script>
 </body>
 
 </html>
