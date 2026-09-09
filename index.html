@@ -63,13 +63,26 @@
         <div class="mobile-nav-close">
           <button onclick="closeMobileNav()" aria-label="Close menu"><i class="ri-close-line"></i></button>
         </div>
+
+        <!-- Nav links -->
         <a href="/" class="mobile-nav-link" onclick="closeMobileNav()"><i class="ri-home-4-line"></i> Home</a>
         <a href="#features" class="mobile-nav-link" onclick="closeMobileNav()"><i class="ri-grid-line"></i> Features</a>
         <a href="#how-it-works" class="mobile-nav-link" onclick="closeMobileNav()"><i class="ri-question-line"></i> How It Works</a>
         <a href="#stats" class="mobile-nav-link" onclick="closeMobileNav()"><i class="ri-bar-chart-2-line"></i> Metrics</a>
-        <div class="mobile-nav-divider"></div>
         <button class="mobile-nav-link" onclick="closeMobileNav(); switchMainView('dashboard')"><i class="ri-dashboard-3-line"></i> Dashboard</button>
-        <button class="mobile-nav-link primary" onclick="closeMobileNav(); window.location.href='login.html'"><i class="ri-login-box-line"></i> Sign In</button>
+
+        <div class="mobile-nav-divider"></div>
+
+        <!-- Auth / CTA -->
+        <div id="mobile-user-section" style="display:none; align-items:center; gap:10px; padding:10px 16px; background:var(--bg-secondary); border-radius:var(--radius-md); border:1px solid var(--border-color);">
+          <div style="width:32px;height:32px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:0.8125rem;font-weight:700;" id="mobile-user-avatar">H</div>
+          <div>
+            <div style="font-size:0.875rem;font-weight:600;color:var(--text-main);" id="mobile-user-name">User</div>
+            <div style="font-size:0.75rem;color:var(--text-muted);">Signed in</div>
+          </div>
+        </div>
+        <button id="mobile-signin-btn" class="mobile-nav-link" onclick="closeMobileNav(); window.location.href='login.html'"><i class="ri-login-box-line"></i> Sign In</button>
+        <button class="mobile-nav-link primary" onclick="closeMobileNav(); launchApp()"><i class="ri-rocket-line"></i> Launch App</button>
       </div>
     </div>
 
@@ -936,6 +949,19 @@
   <script>
     /* ── Mobile Nav Drawer ───────────────────────── */
     function openMobileNav() {
+      // Sync user state into drawer before opening
+      const user = (() => { try { return JSON.parse(localStorage.getItem('salesiq_user')); } catch(e) { return null; } })();
+      const userSection = document.getElementById('mobile-user-section');
+      const signinBtn   = document.getElementById('mobile-signin-btn');
+      if (user && user.name) {
+        document.getElementById('mobile-user-avatar').textContent = user.name.charAt(0).toUpperCase();
+        document.getElementById('mobile-user-name').textContent   = user.name;
+        userSection.style.display = 'flex';
+        signinBtn.style.display   = 'none';
+      } else {
+        userSection.style.display = 'none';
+        signinBtn.style.display   = 'flex';
+      }
       document.getElementById('mobile-nav-drawer').classList.add('open');
       document.body.style.overflow = 'hidden';
     }
@@ -945,10 +971,7 @@
     }
     // Close on Escape key
     document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape') {
-        closeMobileNav();
-        closeSidebar();
-      }
+      if (e.key === 'Escape') { closeMobileNav(); closeSidebar(); }
     });
 
     /* ── Mobile Dashboard Sidebar ────────────────── */
@@ -962,8 +985,7 @@
       document.getElementById('sidebar-overlay').classList.remove('active');
       document.body.style.overflow = '';
     }
-
-    // Auto-close sidebar when a tab is switched on mobile
+    // Auto-close sidebar on tab switch on mobile
     document.querySelectorAll('.sidebar-item').forEach(function(item) {
       item.addEventListener('click', function() {
         if (window.innerWidth <= 768) closeSidebar();

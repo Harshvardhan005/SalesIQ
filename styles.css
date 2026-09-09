@@ -1463,100 +1463,157 @@ textarea.form-control {
 }
 
 @media (max-width: 768px) {
-  /* --- Landing Page --- */
+  /* ── Navbar: only logo + hamburger on mobile ─── */
   .hamburger-btn { display: inline-flex; }
   .nav-links { display: none; }
-  .hero-title { font-size: 2rem; }
-  .hero-subtitle { font-size: 1rem; }
-  .hero-buttons { flex-direction: column; align-items: center; gap: 12px; }
-  .hero-buttons .btn { width: 100%; max-width: 320px; justify-content: center; }
-  .hero { padding: 60px 0 40px; }
-  .cta-title { font-size: 1.75rem; }
-  .cta-box { padding: 48px 24px; }
-  .cta-subtitle { font-size: 1rem; }
-  .features-section, .how-section, .cta-section { padding: 60px 0; }
-  .stats-section { padding: 48px 0; }
-  .stats-grid, .features-grid, .steps-container { grid-template-columns: 1fr; }
-  .footer-grid { grid-template-columns: 1fr; gap: 32px; }
-  .preview-body { padding: 16px; }
-  .preview-stats-row { grid-template-columns: 1fr; gap: 10px; }
-  .section-title { font-size: 1.75rem; }
+  /* Hide Sign In btn and Launch App btn — they live in the drawer on mobile */
+  .nav-actions .btn-secondary,
+  .nav-actions .btn-primary { display: none; }
+  /* Hide user pill on mobile too (accessible from drawer) */
+  #nav-user-pill { display: none !important; }
+  .nav-container { height: 64px; }
 
-  /* --- Dashboard Sidebar as full-width mobile drawer --- */
+  /* ── Hero ────────────────────────────────────── */
+  .hero { padding: 48px 0 36px; }
+  .hero-title { font-size: 1.875rem; letter-spacing: -0.03em; }
+  .hero-subtitle {
+    font-size: 0.9375rem;
+    text-align: center;
+    max-width: 100%;
+    margin-bottom: 28px;
+  }
+  .hero-badge-wrapper { margin-bottom: 16px; }
+  .hero-buttons {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    margin-bottom: 36px;
+    padding: 0 8px;
+  }
+  .hero-buttons .btn { width: 100%; justify-content: center; }
+
+  /* ── Dashboard Preview ───────────────────────── */
+  .dashboard-preview-wrapper { padding: 0 4px; }
+  .preview-body { padding: 14px; }
+  .preview-stats-row {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .preview-mini-card { padding: 12px; }
+  .preview-mini-val { font-size: 1.25rem; }
+  .preview-chart-box { height: 160px; padding: 14px; }
+  .preview-grid { gap: 12px; }
+
+  /* ── Sections ────────────────────────────────── */
+  .features-section, .how-section, .cta-section { padding: 56px 0; }
+  .stats-section { padding: 44px 0; }
+  .section-header { margin-bottom: 36px; }
+  .section-title { font-size: 1.625rem; }
+  .section-subtitle { font-size: 1rem; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .stat-card { padding: 24px 16px; }
+  .stat-number { font-size: 2.25rem; }
+  .features-grid, .steps-container { grid-template-columns: 1fr; gap: 16px; }
+  .feature-card { padding: 28px 24px; }
+  .step-card { padding: 32px 24px; }
+
+  /* ── CTA ─────────────────────────────────────── */
+  .cta-title { font-size: 1.625rem; }
+  .cta-box { padding: 48px 20px; }
+  .cta-subtitle { font-size: 0.9375rem; }
+
+  /* ── Footer ──────────────────────────────────── */
+  .footer-grid { grid-template-columns: 1fr; gap: 28px; }
+  .footer { padding: 56px 0 32px; }
+
+  /* ── Dashboard Sidebar: slide-over drawer ────── */
   .sidebar {
-    width: 260px;
+    width: 268px;
     transform: translateX(-100%);
-    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
     z-index: 90;
   }
-
-  .sidebar.open {
-    transform: translateX(0);
-  }
-
-  /* Restore all hidden labels in sidebar */
-  .sidebar-header h3,
-  .sidebar-item span,
-  .user-info {
-    display: initial;
-  }
-
+  .sidebar.open { transform: translateX(0); }
+  .sidebar-header h3, .sidebar-item span, .user-info { display: initial; }
   .sidebar-item a { gap: 12px; }
-
-  /* Dashboard main takes full width (sidebar is overlay) */
   .dashboard-main { margin-left: 0; }
 
-  /* Show sidebar toggle + fix topbar */
-  .sidebar-toggle-btn { display: inline-flex; }
-  .dashboard-topbar { padding: 0 16px; gap: 12px; }
-  .topbar-actions { gap: 8px; }
-  .topbar-actions .btn span { display: none; } /* hide button text on mobile, keep icons */
+  /* ── Dashboard Topbar ────────────────────────── */
+  .sidebar-toggle-btn { display: inline-flex; flex-shrink: 0; }
+  .dashboard-topbar { padding: 0 14px; gap: 10px; }
+  .topbar-actions { gap: 6px; flex-shrink: 0; }
+  /* Icon-only buttons on mobile (text hidden) */
+  .topbar-actions .btn span { display: none; }
+  .topbar-actions .btn { padding: 8px 10px; min-width: 36px; }
 
-  /* Flexible search box */
+  /* ── Search box ──────────────────────────────── */
   .search-input-box { width: auto; flex: 1; min-width: 0; }
+  .search-input-box input { font-size: 0.8125rem; }
 
-  /* Dashboard content padding */
-  .dashboard-content { padding: 16px; }
+  /* ── Dashboard Content ───────────────────────── */
+  .dashboard-content { padding: 14px; }
+  .metrics-row { grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
+  .metric-card { padding: 14px; }
+  .metric-value { font-size: 1.375rem; }
+  .metric-title { font-size: 0.8125rem; }
 
-  /* Forms */
-  .form-grid { grid-template-columns: 1fr; }
+  /* ── Forms ───────────────────────────────────── */
+  .form-grid { grid-template-columns: 1fr; gap: 16px; }
   .form-group.full-width { grid-column: span 1; }
-  .form-card { padding: 20px; }
-
-  /* Generator grid: single column */
+  .form-card { padding: 18px; margin-bottom: 20px; }
   .generator-grid { grid-template-columns: 1fr !important; }
 
-  /* Metrics */
-  .metrics-row { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-  .metric-card { padding: 16px; }
-  .metric-value { font-size: 1.5rem; }
-
-  /* Results */
-  .results-container { grid-template-columns: 1fr; }
-  .result-card { padding: 20px; }
-
-  /* Score gauge box: stack vertically */
-  .score-gauge-box { flex-direction: column; text-align: center; }
-
-  /* Analysis toolbar: stack */
-  .analysis-toolbar { flex-direction: column; align-items: flex-start !important; }
+  /* ── Results ─────────────────────────────────── */
+  .results-container { grid-template-columns: 1fr; gap: 14px; }
+  .result-card { padding: 18px; }
+  .result-header { margin-bottom: 14px; padding-bottom: 12px; }
+  .result-title { font-size: 1rem; }
+  .score-gauge-box { flex-direction: column; align-items: center; text-align: center; gap: 16px; }
+  .analysis-toolbar { flex-direction: column; align-items: flex-start !important; gap: 10px; }
 }
 
 @media (max-width: 480px) {
-  /* Very small phones (iPhone SE, Galaxy A series) */
-  .container { padding: 0 16px; }
-  .hero-title { font-size: 1.625rem; }
-  .stat-number { font-size: 2rem; }
-  .section-title { font-size: 1.5rem; }
-  .cta-title { font-size: 1.5rem; }
-  .cta-box { padding: 36px 16px; }
-  .metrics-row { grid-template-columns: 1fr; }
-  .form-card { padding: 16px; }
-  .result-card { padding: 16px; }
-  .dashboard-content { padding: 12px; }
-  .nav-container { height: 60px; }
-  .dashboard-topbar { height: 60px; }
-  .btn-lg { padding: 13px 24px; font-size: 0.9375rem; }
-  .feature-card { padding: 24px 20px; }
-  .step-card { padding: 28px 20px; }
+  /* ── Very small phones (iPhone SE 375px, Galaxy A14 etc.) ── */
+  .container { padding: 0 14px; }
+  .nav-container { height: 58px; }
+
+  /* Hero */
+  .hero { padding: 40px 0 28px; }
+  .hero-title { font-size: 1.625rem; line-height: 1.15; }
+  .hero-subtitle { font-size: 0.875rem; }
+  .badge { font-size: 0.75rem; padding: 3px 10px; }
+
+  /* Stats */
+  .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .stat-card { padding: 20px 12px; }
+  .stat-number { font-size: 1.875rem; }
+  .stat-label { font-size: 0.8125rem; }
+
+  /* Preview */
+  .preview-stats-row { grid-template-columns: 1fr; }
+  .preview-body { padding: 10px; }
+
+  /* Sections */
+  .section-title { font-size: 1.375rem; }
+  .features-section, .how-section, .cta-section { padding: 44px 0; }
+  .stats-section { padding: 36px 0; }
+  .feature-card { padding: 22px 18px; }
+  .step-card { padding: 24px 18px; }
+  .feature-title { font-size: 1.0625rem; }
+
+  /* CTA */
+  .cta-title { font-size: 1.375rem; }
+  .cta-box { padding: 36px 14px; }
+
+  /* Dashboard */
+  .dashboard-content { padding: 10px; }
+  .dashboard-topbar { height: 58px; }
+  .metrics-row { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .metric-card { padding: 12px; }
+  .metric-value { font-size: 1.25rem; }
+  .form-card { padding: 14px; }
+  .result-card { padding: 14px; }
+  .btn-lg { padding: 12px 20px; font-size: 0.9375rem; }
 }
+
