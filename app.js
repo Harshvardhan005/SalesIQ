@@ -45,6 +45,7 @@ document.addEventListener("DOMContentLoaded", () => {
   fetchDashboardStats();
   fetchReports();
   fetchLeads();
+  fetchSearchStatus();
 });
 
 // Generic Fetch Wrapper with Error Handling & Loading States
@@ -126,6 +127,43 @@ async function fetchLeads() {
       renderSavedLeadsTable(cachedLeads);
     }
   } catch (e) {}
+}
+
+// Fetch & render Search Provider status in Settings tab
+async function fetchSearchStatus() {
+  const panel = document.getElementById("search-providers-panel");
+  if (!panel) return;
+  try {
+    const res = await fetch(`${API_BASE_URL}/search-status`);
+    const data = await res.json();
+    if (!data.success) return;
+    const providers = data.data.providers;
+    const rows = [
+      { key: "tavily",     label: "Tavily",           note: "Best for AI — rich summaries" },
+      { key: "serper",     label: "Serper",            note: "Google results via serper.dev" },
+      { key: "google_cse", label: "Google Custom Search", note: "Needs CSE ID + API key" },
+      { key: "bing",       label: "Bing Web Search",   note: "Azure Cognitive Services" },
+    ];
+    panel.innerHTML = rows.map(r => {
+      const active = providers[r.key];
+      const dot   = active
+        ? `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#10B981;margin-right:6px;"></span>`
+        : `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#4B5563;margin-right:6px;"></span>`;
+      const statusText = active
+        ? `<span style="color:#10B981;font-weight:600;font-size:0.8125rem;">Active</span>`
+        : `<span style="color:var(--text-subtle);font-size:0.8125rem;">Not configured</span>`;
+      return `
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border-color);">
+          <div style="display:flex;align-items:center;gap:4px;">
+            ${dot}<span style="font-weight:600;color:var(--text-main);font-size:0.9rem;">${r.label}</span>
+            <span style="color:var(--text-subtle);font-size:0.78rem;margin-left:6px;">${r.note}</span>
+          </div>
+          ${statusText}
+        </div>`;
+    }).join('');
+  } catch (e) {
+    if (panel) panel.innerHTML = `<p style="color:var(--text-muted);font-size:0.875rem;">Could not load search provider status.</p>`;
+  }
 }
 
 // View Switching: Landing Page vs Dashboard (SPA)
@@ -363,7 +401,30 @@ function renderAnalysisResults(report) {
 
   const sourceBadge = document.getElementById("res-source-badge");
   if (sourceBadge) {
-    sourceBadge.innerText = `Source: ${report.information_source || 'AI Estimate'}`;
+    const src = report.information_source || 'AI Estimate';
+    const provider = report.search_provider;
+    let label = `Source: ${src}`;
+    if (src === 'Search API' && provider) label = `Source: ${provider}`;
+    sourceBadge.innerText = label;
+
+    // Colour-code the badge by source
+    if (src === 'Website') {
+      sourceBadge.style.background = 'rgba(99,102,241,0.15)';
+      sourceBadge.style.color = '#818cf8';
+      sourceBadge.style.borderColor = 'rgba(99,102,241,0.35)';
+    } else if (src === 'Search API') {
+      sourceBadge.style.background = 'rgba(245,158,11,0.15)';
+      sourceBadge.style.color = '#fbbf24';
+      sourceBadge.style.borderColor = 'rgba(245,158,11,0.35)';
+    } else if (src === 'User Input') {
+      sourceBadge.style.background = 'rgba(16,185,129,0.15)';
+      sourceBadge.style.color = '#34d399';
+      sourceBadge.style.borderColor = 'rgba(16,185,129,0.35)';
+    } else {
+      sourceBadge.style.background = 'var(--bg-tertiary)';
+      sourceBadge.style.color = 'var(--text-muted)';
+      sourceBadge.style.borderColor = 'var(--border-color)';
+    }
   }
 
   // 2. Company Profile Overview & Products
@@ -568,8 +629,12 @@ async function handleResearchSubmit(event) {
   } catch (err) {
     loadingEl.style.display = "none";
     if (err.status === 422 && err.data && err.data.requires_manual_input) {
-      document.getElementById("manual-info-group").style.display = "block";
-      showToast(err.message, "error");
+      const manualGroup = document.getElementById("manual-info-group");
+      if (manualGroup) manualGroup.style.display = "block";
+      manualGroup && manualGroup.scrollIntoView({ behavior: 'smooth' });
+      showToast('Automatic research failed — paste company info below to continue.', 'error');
+    } else {
+      showToast(err.message || 'Analysis failed. Please try again.', 'error');
     }
   }
 }

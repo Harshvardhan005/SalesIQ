@@ -588,8 +588,7 @@
                   </div>
 
                   <div class="form-group" id="manual-info-group" style="display: none; grid-column: 1 / -1;">
-                    <label for="manual-company-info" style="color: #F59E0B;"><i class="ri-alert-line"></i> Web Scraping
-                      Failed. Please paste manual company information:</label>
+                    <label for="manual-company-info" style="color: #F59E0B;"><i class="ri-alert-line"></i> Automatic research failed (scraping &amp; all search APIs). Paste company information manually:</label>
                     <textarea id="manual-company-info" class="form-control" rows="4"
                       placeholder="Paste text from the company website, about us page, or LinkedIn profile..."></textarea>
                   </div>
@@ -932,6 +931,18 @@
                 style="margin-left:8px; color: var(--danger); border-color: var(--danger);" onclick="signOut()">
                 <i class="ri-logout-box-r-line"></i> Sign Out
               </button>
+            </div>
+
+            <!-- Search API Providers Status -->
+            <div class="form-card" style="margin-top: 24px;">
+              <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
+                <h4 style="margin:0;"><i class="ri-search-eye-line" style="color:var(--accent); margin-right:8px;"></i>Search API Integrations</h4>
+                <span style="font-size:0.8rem; color:var(--text-muted);">Used as fallback when website scraping fails</span>
+              </div>
+              <p style="font-size:0.875rem; color:var(--text-muted); margin-bottom:16px;">Add your API keys to <code style="background:var(--bg-tertiary); padding:2px 6px; border-radius:4px; font-size:0.8rem;">.env</code> to enable each provider. Priority order: <strong>Tavily → Serper → Google CSE → Bing</strong>.</p>
+              <div id="search-providers-panel">
+                <p style="color:var(--text-muted); font-size:0.875rem;">Loading provider status...</p>
+              </div>
             </div>
           </div>
 

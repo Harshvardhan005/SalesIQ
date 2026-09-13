@@ -13,6 +13,7 @@ from database import init_db
 from database_service import DatabaseService
 from groq_service import GroqService
 from scrape_service import ScrapeService
+from search_service import SearchService
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -107,26 +108,50 @@ def analyze_company():
     if not industry:
         return api_response(success=False, message="Industry is required", status_code=400)
 
-    # Scraping Logic
+    # ------------------------------------------------------------------
+    # Three-tier research pipeline:
+    #   1. Manual input (if user already provided it)
+    #   2. Website scraping
+    #   3. Search API fallback (Tavily → Serper → Google CSE → Bing)
+    #   4. Return 422 asking for manual input if everything fails
+    # ------------------------------------------------------------------
     scraped_content = ""
-    information_source = "Website"
-    
+    information_source = "AI Estimate"
+    search_provider = None
+
     if manual_company_info:
+        # Tier 0 – user pasted it manually
         scraped_content = manual_company_info
         information_source = "User Input"
     else:
+        # Tier 1 – try website scraping
         scrape_result = ScrapeService.scrape_website(website)
         if scrape_result and scrape_result.get("success"):
             scraped_content = scrape_result.get("text", "")
             information_source = "Website"
         else:
-            error_msg = scrape_result.get("error", "Unknown error") if scrape_result else "Invalid URL"
-            return api_response(
-                success=False, 
-                message=f"Web scraping failed: {error_msg}. Please provide manual company information.", 
-                status_code=422,
-                data={"requires_manual_input": True, "error": error_msg}
-            )
+            scrape_error = scrape_result.get("error", "Unknown error") if scrape_result else "Invalid URL"
+
+            # Tier 2 – try search APIs
+            search_result = SearchService.search(company_name, website)
+            if search_result and search_result.get("success"):
+                scraped_content = search_result.get("text", "")
+                information_source = "Search API"
+                search_provider = search_result.get("provider", "Search API")
+            else:
+                # Tier 3 – both failed, ask for manual input
+                search_error = search_result.get("error", "All search providers failed.") if search_result else "No search providers configured."
+                return api_response(
+                    success=False,
+                    message=(
+                        f"Automatic research failed. "
+                        f"Scraping: {scrape_error}. "
+                        f"Search: {search_error}. "
+                        f"Please paste company information manually."
+                    ),
+                    status_code=422,
+                    data={"requires_manual_input": True, "scrape_error": scrape_error, "search_error": search_error}
+                )
 
     try:
         # Call Groq AI Service
@@ -175,7 +200,8 @@ def analyze_company():
             "confidence": report_data.get("confidence", "High"),
             "email_script": email_script,
             "linkedin_script": linkedin_script,
-            "information_source": information_source
+            "information_source": information_source,
+            "search_provider": search_provider
         }
 
         report_id = DatabaseService.create_report(db_payload)
@@ -201,6 +227,20 @@ def analyze_company():
         return api_response(success=False, message=str(re), status_code=500)
     except Exception as e:
         return api_response(success=False, message=f"Failed to generate analysis: {str(e)}", status_code=500)
+
+@app.route("/api/search-status", methods=["GET"])
+def search_status():
+    """Returns which search API providers are currently configured."""
+    import os
+    providers = {
+        "tavily":     bool(os.getenv("TAVILY_API_KEY", "").strip()),
+        "serper":     bool(os.getenv("SERPER_API_KEY", "").strip()),
+        "google_cse": bool(os.getenv("GOOGLE_CSE_API_KEY", "").strip() and os.getenv("GOOGLE_CSE_ID", "").strip()),
+        "bing":       bool(os.getenv("BING_SEARCH_API_KEY", "").strip()),
+    }
+    any_enabled = any(providers.values())
+    return api_response(success=True, data={"providers": providers, "any_enabled": any_enabled})
+
 
 @app.route("/api/generate-content", methods=["POST"])
 def generate_content():

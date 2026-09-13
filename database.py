@@ -1,179 +1,134 @@
-import sqlite3
-import os
+"""
+SalesIQ — Database Initialization
+Uses SQLAlchemy to create all tables and seed default data.
+Legacy get_db_connection() kept for backwards-compatibility during migration.
+"""
 import json
+import os
+import bcrypt
+
+from models import Base, User, Report, Lead, GeneratedContent, get_engine, get_session
 from config import Config
 
+
+def init_db():
+    """Create all SQLAlchemy tables and seed initial data if empty."""
+    engine = get_engine()
+
+    # Create all tables (safe; won't overwrite existing ones)
+    Base.metadata.create_all(bind=engine)
+
+    session = get_session()
+    try:
+        _seed_reports_if_empty(session)
+        _seed_users_if_empty(session)
+        session.commit()
+    except Exception:
+        session.rollback()
+        raise
+    finally:
+        session.close()
+
+
+# ── Seeding ───────────────────────────────────────────────────────────────────
+
+def _seed_reports_if_empty(session):
+    if session.query(Report).count() > 0:
+        return
+
+    sample_reports = [
+        Report(
+            company_name="Stripe", website="https://stripe.com",
+            industry="Fintech & Banking",
+            product_offered="AI Sales Intelligence Engine",
+            target_customer="Head of Sales", notes="Expanding sales team",
+            lead_score=96,
+            pain_points=json.dumps(["Manual merchant verification bottlenecks", "Multi-currency reconciliation overhead"]),
+            company_overview="Stripe is a global technology company that builds economic infrastructure for the internet, enabling payments and business operations of all sizes.",
+            products=json.dumps(["Stripe Payments", "Stripe Connect", "Stripe Billing"]),
+            business_goals=json.dumps(["Expand international merchant base", "Launch automated compliance systems"]),
+            growth_opportunities=json.dumps(["Provide real-time merchant auditing tools", "Integrate instant local currency payouts"]),
+            sales_strategy="Pitch our automated compliance tracking and risk auditing workflows. Position SalesIQ as the key engine to save merchant operations team 15+ hours per week.",
+            confidence="High",
+            email_script="Subject: Streamlining outbound pipeline for Stripe\n\nHi [FirstName],\n\nNoticed Stripe is expanding enterprise sales...",
+            linkedin_script="Hi [FirstName], impressive growth at Stripe! Would love to connect regarding AI research automation.",
+            information_source="AI Estimate",
+        ),
+        Report(
+            company_name="Vercel", website="https://vercel.com",
+            industry="B2B SaaS / Software",
+            product_offered="DevSecOps Scanner",
+            target_customer="CTO & VP Eng", notes="Hiring enterprise SDRs",
+            lead_score=92,
+            pain_points=json.dumps(["Security compliance documentation overhead", "Lead triage taking engineering cycles"]),
+            company_overview="Vercel provides developer tools and cloud hosting infrastructure that enables teams to deploy fast, secure frontends and websites.",
+            products=json.dumps(["Next.js Hosting", "Vercel v0", "Vercel Analytics"]),
+            business_goals=json.dumps(["Accelerate website load speeds globally", "Enforce security standards across projects"]),
+            growth_opportunities=json.dumps(["Provide continuous frontend vulnerability scanning", "Integrate automated security linting at build-time"]),
+            sales_strategy="Highlight our automated DevSecOps scanning that acts as a guardrail at build-time, preventing vulnerabilities from reaching the production edge.",
+            confidence="High",
+            email_script="Subject: Accelerating security compliance at Vercel\n\nHi [FirstName],\n\nCongrats on the platform updates...",
+            linkedin_script="Hi [FirstName], great work on Vercel's recent launch. Let's connect!",
+            information_source="AI Estimate",
+        ),
+        Report(
+            company_name="Linear", website="https://linear.app",
+            industry="B2B SaaS / Software",
+            product_offered="AI Sales Platform",
+            target_customer="VP of Revenue Ops", notes="Migrating enterprise customers",
+            lead_score=89,
+            pain_points=json.dumps(["Outbound SDR team needs tech stack signal monitoring", "Long sales cycle for workspace migrations"]),
+            company_overview="Linear is an issue tracker and project management platform designed for high-performance software engineering teams.",
+            products=json.dumps(["Linear Issue Tracker", "Linear Cycles", "Linear Roadmaps"]),
+            business_goals=json.dumps(["Increase enterprise sales penetration", "Shorten client project onboarding cycle"]),
+            growth_opportunities=json.dumps(["Sync workspace tickets with enterprise CRM systems", "Track team velocity metrics automatically"]),
+            sales_strategy="Emphasize our direct integrations and CRM sync capabilities, showing how we can reduce administrative tasks for outbound teams by 25%.",
+            confidence="Medium",
+            email_script="Subject: Outbound signal monitoring for Linear\n\nHi [FirstName],\n\nNoticed your workspace migrations...",
+            linkedin_script="Hi [FirstName], loving Linear! Let's connect regarding outbound intelligence.",
+            information_source="AI Estimate",
+        ),
+    ]
+    session.add_all(sample_reports)
+
+    sample_leads = [
+        Lead(company_name="Stripe", website="https://stripe.com", industry="Fintech & Banking", lead_score=96, status="High Fit", notes="Expanding enterprise team", pipeline_stage="Contacted"),
+        Lead(company_name="Vercel", website="https://vercel.com", industry="B2B SaaS / Software", lead_score=92, status="High Fit", notes="DevOps pipeline lead", pipeline_stage="Demo"),
+        Lead(company_name="Linear", website="https://linear.app", industry="B2B SaaS / Software", lead_score=89, status="Medium Fit", notes="Migrating users", pipeline_stage="New"),
+        Lead(company_name="Figma", website="https://figma.com", industry="B2B SaaS / Software", lead_score=94, status="High Fit", notes="Design team scaling", pipeline_stage="New"),
+        Lead(company_name="Notion", website="https://notion.so", industry="B2B SaaS / Software", lead_score=91, status="High Fit", notes="Workspace security compliance", pipeline_stage="Closed"),
+    ]
+    session.add_all(sample_leads)
+
+
+def _seed_users_if_empty(session):
+    if session.query(User).count() > 0:
+        return
+
+    default_users = [
+        User(
+            name="Harshvardhan Kumar",
+            email="hv14835@gmail.com",
+            password_hash="$2b$12$SO8aeNoA52d.wzgefTxRc.ITz86O12S933pLN1cZ7nKtErBNb1CBm",
+        ),
+        User(
+            name="Demo User",
+            email="demo@salesiq.ai",
+            password_hash="$2b$12$Yo9g8FGNByX3QBQyfGXVqOGM9Kc6sZ3aAZetwvC/s8rx1QDm0Hdmq",
+        ),
+    ]
+    session.add_all(default_users)
+
+
+# ── Legacy compatibility shim ─────────────────────────────────────────────────
+# Kept so any remaining direct imports of get_db_connection() don't break.
+
 def get_db_connection():
-    """Establish connection to SQLite database with dictionary row factory."""
+    """
+    DEPRECATED: Use models.get_session() instead.
+    Returns a raw sqlite3 connection for backwards-compatibility only.
+    """
+    import sqlite3
     conn = sqlite3.connect(Config.DATABASE_PATH)
     conn.row_factory = sqlite3.Row
     return conn
-
-def init_db():
-    """Create SQLite database tables if they do not exist."""
-    conn = get_db_connection()
-    cursor = conn.cursor()
-
-    # Migration Check: Drop reports table if company_overview column is missing
-    try:
-        cursor.execute("PRAGMA table_info(reports)")
-        cols = [row[1] for row in cursor.fetchall()]
-        if cols and "company_overview" not in cols:
-            cursor.execute("DROP TABLE IF EXISTS reports")
-        elif cols and "information_source" not in cols:
-            cursor.execute("ALTER TABLE reports ADD COLUMN information_source TEXT DEFAULT 'AI Estimate'")
-    except Exception:
-        pass
-
-    # Table 1: Reports (Expanded to support structured AI signals)
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS reports (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            company_name TEXT NOT NULL,
-            website TEXT NOT NULL,
-            industry TEXT NOT NULL,
-            product_offered TEXT,
-            target_customer TEXT,
-            notes TEXT,
-            lead_score INTEGER NOT NULL,
-            pain_points TEXT NOT NULL,
-            company_overview TEXT,
-            products TEXT,
-            business_goals TEXT,
-            growth_opportunities TEXT,
-            sales_strategy TEXT,
-            confidence TEXT,
-            email_script TEXT,
-            linkedin_script TEXT,
-            information_source TEXT DEFAULT 'AI Estimate',
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    ''')
-
-    # Table 2: Generated Content
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS generated_content (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            company_name TEXT NOT NULL,
-            content_type TEXT NOT NULL,
-            prompt TEXT,
-            output_text TEXT NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    ''')
-
-    # Table 3: Saved Leads
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS saved_leads (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            company_name TEXT NOT NULL,
-            website TEXT NOT NULL,
-            industry TEXT NOT NULL,
-            lead_score INTEGER NOT NULL,
-            status TEXT DEFAULT 'High Fit',
-            notes TEXT,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    ''')
-
-    # Table 4: Users (Authentication)
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            email TEXT NOT NULL UNIQUE,
-            password_hash TEXT NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    ''')
-
-    # Insert default seed data if database is empty
-    cursor.execute("SELECT COUNT(*) as count FROM reports")
-    if cursor.fetchone()['count'] == 0:
-        seed_database(cursor)
-
-    # Ensure default user accounts exist for seamless deployment login
-    cursor.execute("SELECT COUNT(*) as count FROM users")
-    if cursor.fetchone()['count'] == 0:
-        cursor.execute('''
-            INSERT INTO users (name, email, password_hash)
-            VALUES (?, ?, ?)
-        ''', ('Harshvardhan Kumar', 'hv14835@gmail.com', '$2b$12$SO8aeNoA52d.wzgefTxRc.ITz86O12S933pLN1cZ7nKtErBNb1CBm'))
-        cursor.execute('''
-            INSERT INTO users (name, email, password_hash)
-            VALUES (?, ?, ?)
-        ''', ('Demo User', 'demo@salesiq.ai', '$2b$12$Yo9g8FGNByX3QBQyfGXVqOGM9Kc6sZ3aAZetwvC/s8rx1QDm0Hdmq'))
-
-    conn.commit()
-    conn.close()
-
-def seed_database(cursor):
-    """Seed initial sample data for demonstration."""
-    sample_reports = [
-        (
-            "Stripe", "https://stripe.com", "Fintech & Banking", 
-            "AI Sales Intelligence Engine", "Head of Sales", "Expanding sales team", 96, 
-            json.dumps(["Manual merchant verification bottlenecks", "Multi-currency reconciliation overhead"]),
-            "Stripe is a global technology company that builds economic infrastructure for the internet, enabling payments and business operations of all sizes.",
-            json.dumps(["Stripe Payments", "Stripe Connect", "Stripe Billing"]),
-            json.dumps(["Expand international merchant base", "Launch automated compliance systems"]),
-            json.dumps(["Provide real-time merchant auditing tools", "Integrate instant local currency payouts"]),
-            "Pitch our automated compliance tracking and risk auditing workflows. Position SalesIQ as the key engine to save merchant operations team 15+ hours per week.",
-            "High",
-            "Subject: Streamlining outbound pipeline for Stripe\n\nHi [FirstName],\n\nNoticed Stripe is expanding enterprise sales...", 
-            "Hi [FirstName], impressive growth at Stripe! Would love to connect regarding AI research automation."
-        ),
-        (
-            "Vercel", "https://vercel.com", "B2B SaaS / Software", 
-            "DevSecOps Scanner", "CTO & VP Eng", "Hiring enterprise SDRs", 92, 
-            json.dumps(["Security compliance documentation overhead", "Lead triage taking engineering cycles"]),
-            "Vercel provides developer tools and cloud hosting infrastructure that enables teams to deploy fast, secure frontends and websites.",
-            json.dumps(["Next.js Hosting", "Vercel v0", "Vercel Analytics"]),
-            json.dumps(["Accelerate website load speeds globally", "Enforce security standards across projects"]),
-            json.dumps(["Provide continuous frontend vulnerability scanning", "Integrate automated security linting at build-time"]),
-            "Highlight our automated DevSecOps scanning that acts as a guardrail at build-time, preventing vulnerabilities from reaching the production edge.",
-            "High",
-            "Subject: Accelerating security compliance at Vercel\n\nHi [FirstName],\n\nCongrats on the platform updates...", 
-            "Hi [FirstName], great work on Vercel's recent launch. Let's connect!"
-        ),
-        (
-            "Linear", "https://linear.app", "B2B SaaS / Software", 
-            "AI Sales Platform", "VP of Revenue Ops", "Migrating enterprise customers", 89, 
-            json.dumps(["Outbound SDR team needs tech stack signal monitoring", "Long sales cycle for workspace migrations"]),
-            "Linear is an issue tracker and project management platform designed for high-performance software engineering teams.",
-            json.dumps(["Linear Issue Tracker", "Linear Cycles", "Linear Roadmaps"]),
-            json.dumps(["Increase enterprise sales penetration", "Shorten client project onboarding cycle"]),
-            json.dumps(["Sync workspace tickets with enterprise CRM systems", "Track team velocity metrics automatically"]),
-            "Emphasize our direct integrations and CRM sync capabilities, showing how we can reduce administrative tasks for outbound teams by 25%.",
-            "Medium",
-            "Subject: Outbound signal monitoring for Linear\n\nHi [FirstName],\n\nNoticed your workspace migrations...", 
-            "Hi [FirstName], loving Linear! Let's connect regarding outbound intelligence."
-        )
-    ]
-
-    for r in sample_reports:
-        r_list = list(r)
-        r_list.append("AI Estimate") # for information_source
-        cursor.execute('''
-            INSERT INTO reports (
-                company_name, website, industry, product_offered, target_customer, notes, lead_score, pain_points,
-                company_overview, products, business_goals, growth_opportunities, sales_strategy, confidence,
-                email_script, linkedin_script, information_source
-            )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ''', tuple(r_list))
-
-    sample_leads = [
-        ("Stripe", "https://stripe.com", "Fintech & Banking", 96, "High Fit", "Expanding enterprise team"),
-        ("Vercel", "https://vercel.com", "B2B SaaS / Software", 92, "High Fit", "DevOps pipeline lead"),
-        ("Linear", "https://linear.app", "B2B SaaS / Software", 89, "Medium Fit", "Migrating users"),
-        ("Figma", "https://figma.com", "B2B SaaS / Software", 94, "High Fit", "Design team scaling"),
-        ("Notion", "https://notion.so", "B2B SaaS / Software", 91, "High Fit", "Workspace security compliance")
-    ]
-
-    for l in sample_leads:
-        cursor.execute('''
-            INSERT INTO saved_leads (company_name, website, industry, lead_score, status, notes)
-            VALUES (?, ?, ?, ?, ?, ?)
-        ''', l)
-
