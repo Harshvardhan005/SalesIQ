@@ -18,6 +18,9 @@ def init_db():
     # Create all tables (safe; won't overwrite existing ones)
     Base.metadata.create_all(bind=engine)
 
+    # Add any columns that didn't exist in the old schema
+    _migrate_existing_tables(engine)
+
     session = get_session()
     try:
         _seed_reports_if_empty(session)
@@ -28,6 +31,34 @@ def init_db():
         raise
     finally:
         session.close()
+
+
+def _migrate_existing_tables(engine):
+    """
+    Safely add new columns to pre-existing SQLite tables that were created
+    before the SQLAlchemy ORM upgrade.  SQLite raises OperationalError on
+    duplicate column names, which we silently ignore.
+    """
+    migrations = [
+        "ALTER TABLE reports ADD COLUMN is_deleted BOOLEAN DEFAULT 0",
+        "ALTER TABLE reports ADD COLUMN deleted_at DATETIME",
+        "ALTER TABLE saved_leads ADD COLUMN is_deleted BOOLEAN DEFAULT 0",
+        "ALTER TABLE saved_leads ADD COLUMN deleted_at DATETIME",
+        "ALTER TABLE saved_leads ADD COLUMN pipeline_stage VARCHAR(20) DEFAULT 'New'",
+        "ALTER TABLE users ADD COLUMN is_deleted BOOLEAN DEFAULT 0",
+        "ALTER TABLE users ADD COLUMN deleted_at DATETIME",
+        "ALTER TABLE generated_content ADD COLUMN is_deleted BOOLEAN DEFAULT 0",
+        "ALTER TABLE generated_content ADD COLUMN deleted_at DATETIME",
+    ]
+    with engine.connect() as conn:
+        for stmt in migrations:
+            try:
+                conn.execute(__import__("sqlalchemy").text(stmt))
+                conn.commit()
+            except Exception:
+                # Column already exists or table doesn't exist yet — both are fine
+                pass
+
 
 
 # ── Seeding ───────────────────────────────────────────────────────────────────

@@ -1,411 +1,143 @@
-import random
+"""
+SalesIQ — Application Factory
+Wires together Flask extensions, blueprints, error handlers, and static file serving.
+"""
 import os
-import bcrypt
 from dotenv import load_dotenv
 
-# Load environment variables from .env
-load_dotenv(os.path.join(os.path.dirname(__file__), '.env'))
+# Load .env before anything else so Config can read env vars
+load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
 
-from flask import Flask, request, jsonify, send_from_directory
-from flask_cors import CORS
+from flask import Flask, jsonify, send_from_directory
 from config import Config
+from extensions import jwt, limiter, cors
 from database import init_db
-from database_service import DatabaseService
-from groq_service import GroqService
-from scrape_service import ScrapeService
-from search_service import SearchService
-
-app = Flask(__name__)
-app.config.from_object(Config)
-
-# Enable CORS for cross-origin frontend communication
-CORS(app, resources={r"/*": {"origins": "*"}})
-
-# Initialize SQLite database schema
-init_db()
-
-# Custom Standard API Response Helper
-def api_response(success=True, data=None, message="", status_code=200):
-    return jsonify({
-        "success": success,
-        "message": message,
-        "data": data
-    }), status_code
-
-# Security Headers Middleware
-@app.after_request
-def add_security_headers(response):
-    response.headers['X-Content-Type-Options'] = 'nosniff'
-    response.headers['X-Frame-Options'] = 'SAMEORIGIN'
-    response.headers['X-XSS-Protection'] = '1; mode=block'
-    response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
-    response.headers['Permissions-Policy'] = 'geolocation=(), microphone=(), camera=()'
-    return response
-
-# Error Handlers
-@app.errorhandler(400)
-def bad_request(e):
-    return api_response(success=False, message=str(e.description or "Bad request"), status_code=400)
-
-@app.errorhandler(413)
-def request_entity_too_large(e):
-    return api_response(success=False, message="Payload size exceeds maximum allowed limit (5MB).", status_code=413)
-
-@app.errorhandler(404)
-def not_found(e):
-    return api_response(success=False, message="Resource or endpoint not found", status_code=404)
-
-@app.errorhandler(500)
-def server_error(e):
-    return api_response(success=False, message="Internal server error occurred", status_code=500)
-
-# Routes
-
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-@app.route("/", methods=["GET"])
-def index():
-    return send_from_directory(BASE_DIR, "login.html")
-
-@app.route("/login", methods=["GET"])
-def login_page():
-    return send_from_directory(BASE_DIR, "login.html")
-
-@app.route("/dashboard", methods=["GET"])
-def dashboard_page():
-    return send_from_directory(BASE_DIR, "index.html")
-
-@app.route("/<path:filename>", methods=["GET"])
-def static_files(filename):
-    return send_from_directory(BASE_DIR, filename)
+from logger import configure_logging, register_request_logging
 
 
-@app.route("/api/dashboard-stats", methods=["GET"])
-def get_stats():
-    try:
-        stats = DatabaseService.get_dashboard_stats()
-        return api_response(success=True, data=stats, message="Dashboard stats retrieved successfully")
-    except Exception as e:
-        return api_response(success=False, message=f"Failed to fetch stats: {str(e)}", status_code=500)
+def create_app(config_class=Config):
+    """Application factory — create and configure the Flask app."""
+    app = Flask(__name__)
+    app.config.from_object(config_class)
 
-@app.route("/api/analyze-company", methods=["POST"])
-def analyze_company():
-    payload = request.get_json() or {}
+    # ── Logging ──────────────────────────────────────────────────────────────
+    configure_logging(debug=config_class.DEBUG)
+    register_request_logging(app)
 
-    # Inputs Validation
-    company_name = payload.get("company_name", "").strip()
-    website = payload.get("website", "").strip()
-    industry = payload.get("industry", "").strip()
-    product_offered = payload.get("product_offered", "").strip()
-    target_customer = payload.get("target_customer", "").strip()
-    notes = payload.get("notes", "").strip()
-    manual_company_info = payload.get("manual_company_info", "").strip()
+    # ── Extensions ───────────────────────────────────────────────────────────
+    jwt.init_app(app)
+    limiter.init_app(app)
+    cors.init_app(
+        app,
+        resources={r"/*": {"origins": config_class.ALLOWED_ORIGINS}},
+        supports_credentials=True,
+    )
 
-    if not company_name:
-        return api_response(success=False, message="Company name is required", status_code=400)
-    if not website:
-        return api_response(success=False, message="Website URL is required", status_code=400)
-    if not industry:
-        return api_response(success=False, message="Industry is required", status_code=400)
+    # ── Database ─────────────────────────────────────────────────────────────
+    with app.app_context():
+        init_db()
 
-    # ------------------------------------------------------------------
-    # Three-tier research pipeline:
-    #   1. Manual input (if user already provided it)
-    #   2. Website scraping
-    #   3. Search API fallback (Tavily → Serper → Google CSE → Bing)
-    #   4. Return 422 asking for manual input if everything fails
-    # ------------------------------------------------------------------
-    scraped_content = ""
-    information_source = "AI Estimate"
-    search_provider = None
+    # ── Blueprints ───────────────────────────────────────────────────────────
+    from blueprints.auth import auth_bp
+    from blueprints.company import company_bp
+    from blueprints.content import content_bp
+    from blueprints.dashboard import dashboard_bp
+    from blueprints.leads import leads_bp
+    from blueprints.reports import reports_bp
+    from blueprints.health import health_bp
 
-    if manual_company_info:
-        # Tier 0 – user pasted it manually
-        scraped_content = manual_company_info
-        information_source = "User Input"
-    else:
-        # Tier 1 – try website scraping
-        scrape_result = ScrapeService.scrape_website(website)
-        if scrape_result and scrape_result.get("success"):
-            scraped_content = scrape_result.get("text", "")
-            information_source = "Website"
-        else:
-            scrape_error = scrape_result.get("error", "Unknown error") if scrape_result else "Invalid URL"
+    for bp in (auth_bp, company_bp, content_bp, dashboard_bp, leads_bp, reports_bp, health_bp):
+        app.register_blueprint(bp)
 
-            # Tier 2 – try search APIs
-            search_result = SearchService.search(company_name, website)
-            if search_result and search_result.get("success"):
-                scraped_content = search_result.get("text", "")
-                information_source = "Search API"
-                search_provider = search_result.get("provider", "Search API")
-            else:
-                # Tier 3 – both failed, ask for manual input
-                search_error = search_result.get("error", "All search providers failed.") if search_result else "No search providers configured."
-                return api_response(
-                    success=False,
-                    message=(
-                        f"Automatic research failed. "
-                        f"Scraping: {scrape_error}. "
-                        f"Search: {search_error}. "
-                        f"Please paste company information manually."
-                    ),
-                    status_code=422,
-                    data={"requires_manual_input": True, "scrape_error": scrape_error, "search_error": search_error}
-                )
-
-    try:
-        # Call Groq AI Service
-        report_data = GroqService.analyze_company(
-            company_name=company_name,
-            website=website,
-            industry=industry,
-            product_offered=product_offered,
-            target_customer=target_customer,
-            notes=notes,
-            scraped_content=scraped_content,
-            information_source=information_source
-        )
-
-        # Build fallback email and linkedin scripts based on sales strategy insights
-        email_script = (
-            f"Subject: Value Proposition outreach for {company_name}\n\n"
-            f"Hi team,\n\n"
-            f"Here is a personalized outbound outreach strategy for {company_name}:\n\n"
-            f"{report_data.get('sales_strategy', '')}\n\n"
-            f"Value Proposition Hook:\n"
-            f"Focus on solving key pain point: {report_data.get('pain_points', ['Outbound efficiency'])[0]}\n\n"
-            f"Best,\nSales Team"
-        )
-        linkedin_script = (
-            f"Hi, saw your growth at {company_name}.\n\n"
-            f"Let's connect regarding your business goals: {', '.join(report_data.get('business_goals', []))}.\n\n"
-            f"Best regards!"
-        )
-
-        # Format complete payload for database insertion
-        db_payload = {
-            "company_name": company_name,
-            "website": website,
-            "industry": report_data.get("industry", industry),
-            "product_offered": product_offered,
-            "target_customer": target_customer,
-            "notes": notes,
-            "lead_score": report_data.get("lead_score", 90),
-            "pain_points": report_data.get("pain_points", []),
-            "company_overview": report_data.get("company_overview", ""),
-            "products": report_data.get("products", []),
-            "business_goals": report_data.get("business_goals", []),
-            "growth_opportunities": report_data.get("growth_opportunities", []),
-            "sales_strategy": report_data.get("sales_strategy", ""),
-            "confidence": report_data.get("confidence", "High"),
-            "email_script": email_script,
-            "linkedin_script": linkedin_script,
-            "information_source": information_source,
-            "search_provider": search_provider
+    # ── Search-status helper (no auth required) ───────────────────────────────
+    @app.route("/api/search-status", methods=["GET"])
+    def search_status():
+        providers = {
+            "tavily":     bool(os.getenv("TAVILY_API_KEY", "").strip()),
+            "serper":     bool(os.getenv("SERPER_API_KEY", "").strip()),
+            "google_cse": bool(
+                os.getenv("GOOGLE_CSE_API_KEY", "").strip()
+                and os.getenv("GOOGLE_CSE_ID", "").strip()
+            ),
+            "bing": bool(os.getenv("BING_SEARCH_API_KEY", "").strip()),
         }
-
-        report_id = DatabaseService.create_report(db_payload)
-
-        # Also auto-create a saved lead account in CRM
-        DatabaseService.create_lead({
-            "company_name": company_name,
-            "website": website,
-            "industry": report_data.get("industry", industry),
-            "lead_score": report_data.get("lead_score", 90),
-            "status": "High Fit" if report_data.get("lead_score", 90) >= 90 else "Medium Fit",
-            "notes": notes
+        return jsonify({
+            "success": True,
+            "message": "Search provider status",
+            "data": {"providers": providers, "any_enabled": any(providers.values())},
         })
 
-        db_payload["id"] = report_id
-        return api_response(success=True, data=db_payload, message="Company analysis generated successfully", status_code=201)
+    # ── Static file serving ───────────────────────────────────────────────────
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-    except ValueError as ve:
-        # Invalid inputs or missing key errors
-        return api_response(success=False, message=str(ve), status_code=400)
-    except RuntimeError as re:
-        # Rate limits, timeouts, connection/API errors
-        return api_response(success=False, message=str(re), status_code=500)
-    except Exception as e:
-        return api_response(success=False, message=f"Failed to generate analysis: {str(e)}", status_code=500)
+    @app.route("/", methods=["GET"])
+    def index():
+        return send_from_directory(BASE_DIR, "login.html")
 
-@app.route("/api/search-status", methods=["GET"])
-def search_status():
-    """Returns which search API providers are currently configured."""
-    import os
-    providers = {
-        "tavily":     bool(os.getenv("TAVILY_API_KEY", "").strip()),
-        "serper":     bool(os.getenv("SERPER_API_KEY", "").strip()),
-        "google_cse": bool(os.getenv("GOOGLE_CSE_API_KEY", "").strip() and os.getenv("GOOGLE_CSE_ID", "").strip()),
-        "bing":       bool(os.getenv("BING_SEARCH_API_KEY", "").strip()),
-    }
-    any_enabled = any(providers.values())
-    return api_response(success=True, data={"providers": providers, "any_enabled": any_enabled})
+    @app.route("/login", methods=["GET"])
+    def login_page():
+        return send_from_directory(BASE_DIR, "login.html")
 
+    @app.route("/dashboard", methods=["GET"])
+    def dashboard_page():
+        return send_from_directory(BASE_DIR, "index.html")
 
-@app.route("/api/generate-content", methods=["POST"])
-def generate_content():
-    payload = request.get_json() or {}
-    company_name = payload.get("company_name", "").strip()
-    content_type = payload.get("content_type", "").strip()
-    tone = payload.get("tone", "").strip()
-    length = payload.get("length", "").strip()
-    prompt = payload.get("prompt", "").strip()
+    @app.route("/<path:filename>", methods=["GET"])
+    def static_files(filename):
+        return send_from_directory(BASE_DIR, filename)
 
-    if not company_name:
-        return api_response(success=False, message="Company name is required", status_code=400)
-    if not content_type:
-        return api_response(success=False, message="Content type is required", status_code=400)
-    if not tone:
-        return api_response(success=False, message="Tone is required", status_code=400)
-    if not length:
-        return api_response(success=False, message="Length is required", status_code=400)
+    # ── Security Headers ──────────────────────────────────────────────────────
+    @app.after_request
+    def add_security_headers(response):
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "SAMEORIGIN"
+        response.headers["X-XSS-Protection"] = "1; mode=block"
+        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+        response.headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()"
+        return response
 
-    # Fetch company report from database
-    try:
-        company_info = DatabaseService.get_report_by_company_name(company_name)
-        if not company_info:
-            return api_response(success=False, message=f"No analyzed profile found for company '{company_name}'. Please run company research first.", status_code=404)
-        
-        # Call Groq AI to generate personalized content
-        output_text = GroqService.generate_sales_content(
-            company_info=company_info,
-            content_type=content_type,
-            tone=tone,
-            length=length,
-            custom_prompt=prompt
-        )
+    # ── JWT Error Handlers ────────────────────────────────────────────────────
+    @jwt.unauthorized_loader
+    def unauthorized_callback(reason):
+        return jsonify({"success": False, "message": f"Unauthorized: {reason}", "data": None}), 401
 
-        # Save to SQLite database
-        content_id = DatabaseService.save_generated_content(company_name, content_type, prompt, output_text)
+    @jwt.expired_token_loader
+    def expired_token_callback(jwt_header, jwt_payload):
+        return jsonify({"success": False, "message": "Token has expired. Please log in again.", "data": None}), 401
 
-        return api_response(success=True, data={
-            "id": content_id,
-            "company_name": company_name,
-            "content_type": content_type,
-            "tone": tone,
-            "length": length,
-            "prompt": prompt,
-            "output_text": output_text
-        }, message="Content generated successfully", status_code=201)
+    @jwt.invalid_token_loader
+    def invalid_token_callback(reason):
+        return jsonify({"success": False, "message": f"Invalid token: {reason}", "data": None}), 422
 
-    except ValueError as ve:
-        return api_response(success=False, message=str(ve), status_code=400)
-    except RuntimeError as re:
-        return api_response(success=False, message=str(re), status_code=500)
-    except Exception as e:
-        return api_response(success=False, message=f"Failed to generate content: {str(e)}", status_code=500)
+    # ── Generic Error Handlers ────────────────────────────────────────────────
+    def api_response(success, message, status_code):
+        return jsonify({"success": success, "message": message, "data": None}), status_code
 
-@app.route("/api/save-report", methods=["POST"])
-def save_report():
-    payload = request.get_json() or {}
-    if not payload.get("company_name") or not payload.get("website"):
-        return api_response(success=False, message="Missing company_name or website fields", status_code=400)
+    @app.errorhandler(400)
+    def bad_request(e):
+        return api_response(False, str(e.description or "Bad request"), 400)
 
-    try:
-        report_id = DatabaseService.create_report(payload)
-        return api_response(success=True, data={"id": report_id}, message="Report saved successfully", status_code=201)
-    except Exception as e:
-        return api_response(success=False, message=f"Database error: {str(e)}", status_code=500)
+    @app.errorhandler(404)
+    def not_found(e):
+        return api_response(False, "Resource or endpoint not found", 404)
 
-@app.route("/api/reports", methods=["GET"])
-def get_reports():
-    try:
-        reports = DatabaseService.get_all_reports()
-        return api_response(success=True, data=reports, message="Reports retrieved successfully")
-    except Exception as e:
-        return api_response(success=False, message=f"Failed to fetch reports: {str(e)}", status_code=500)
+    @app.errorhandler(413)
+    def payload_too_large(e):
+        return api_response(False, "Payload size exceeds maximum allowed limit (5 MB).", 413)
 
-@app.route("/api/reports/<int:report_id>", methods=["DELETE"])
-def delete_report(report_id):
-    try:
-        deleted = DatabaseService.delete_report(report_id)
-        if deleted:
-            return api_response(success=True, message=f"Report #{report_id} deleted successfully")
-        return api_response(success=False, message=f"Report #{report_id} not found", status_code=404)
-    except Exception as e:
-        return api_response(success=False, message=f"Failed to delete report: {str(e)}", status_code=500)
+    @app.errorhandler(429)
+    def rate_limit_exceeded(e):
+        return api_response(False, "Rate limit exceeded. Please slow down.", 429)
 
-@app.route("/api/save-lead", methods=["POST"])
-def save_lead():
-    payload = request.get_json() or {}
-    company_name = payload.get("company_name", "").strip()
-    website = payload.get("website", "").strip()
+    @app.errorhandler(500)
+    def server_error(e):
+        return api_response(False, "Internal server error occurred", 500)
 
-    if not company_name or not website:
-        return api_response(success=False, message="Company name and website are required", status_code=400)
-
-    try:
-        lead_id = DatabaseService.create_lead(payload)
-        return api_response(success=True, data={"id": lead_id}, message="Lead saved successfully", status_code=201)
-    except Exception as e:
-        return api_response(success=False, message=f"Database error: {str(e)}", status_code=500)
-
-@app.route("/api/leads", methods=["GET"])
-def get_leads():
-    try:
-        leads = DatabaseService.get_all_leads()
-        return api_response(success=True, data=leads, message="Leads retrieved successfully")
-    except Exception as e:
-        return api_response(success=False, message=f"Failed to fetch leads: {str(e)}", status_code=500)
-
-@app.route("/api/leads/<int:lead_id>", methods=["DELETE"])
-def delete_lead(lead_id):
-    try:
-        deleted = DatabaseService.delete_lead(lead_id)
-        if deleted:
-            return api_response(success=True, message=f"Lead #{lead_id} deleted successfully")
-        return api_response(success=False, message=f"Lead #{lead_id} not found", status_code=404)
-    except Exception as e:
-        return api_response(success=False, message=f"Failed to delete lead: {str(e)}", status_code=500)
-
-@app.route("/api/auth/register", methods=["POST"])
-def register():
-    payload = request.get_json() or {}
-    name = payload.get("name", "").strip()
-    email = payload.get("email", "").strip().lower()
-    password = payload.get("password", "").strip()
-
-    if not name:
-        return api_response(success=False, message="Name is required", status_code=400)
-    if not email or "@" not in email:
-        return api_response(success=False, message="A valid email is required", status_code=400)
-    if len(password) < 8:
-        return api_response(success=False, message="Password must be at least 8 characters", status_code=400)
-
-    try:
-        password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-        user_id = DatabaseService.create_user(name, email, password_hash)
-        return api_response(success=True, data={"id": user_id, "name": name, "email": email},
-                            message="Account created successfully", status_code=201)
-    except ValueError as ve:
-        return api_response(success=False, message=str(ve), status_code=409)
-    except Exception as e:
-        return api_response(success=False, message=f"Registration failed: {str(e)}", status_code=500)
+    return app
 
 
-@app.route("/api/auth/login", methods=["POST"])
-def login():
-    payload = request.get_json() or {}
-    email = payload.get("email", "").strip().lower()
-    password = payload.get("password", "").strip()
-
-    if not email or not password:
-        return api_response(success=False, message="Email and password are required", status_code=400)
-
-    try:
-        user = DatabaseService.get_user_by_email(email)
-        if not user:
-            return api_response(success=False, message="No account found with this email", status_code=404)
-
-        is_valid = bcrypt.checkpw(password.encode('utf-8'), user['password_hash'].encode('utf-8'))
-        if not is_valid:
-            return api_response(success=False, message="Incorrect password", status_code=401)
-
-        return api_response(success=True, data={"id": user['id'], "name": user['name'], "email": user['email']},
-                            message="Login successful")
-    except Exception as e:
-        return api_response(success=False, message=f"Login failed: {str(e)}", status_code=500)
-
+# ── Entry point ───────────────────────────────────────────────────────────────
+app = create_app()
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=Config.PORT, debug=Config.DEBUG)
