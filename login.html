@@ -664,7 +664,12 @@
       const data = await res.json();
 
       if (data.success) {
-        localStorage.setItem('salesiq_user', JSON.stringify(data.data));
+        // ── Persist all three auth keys ──
+        const { access_token, refresh_token, ...user } = data.data;
+        localStorage.setItem('salesiq_access_token',  access_token);
+        localStorage.setItem('salesiq_refresh_token', refresh_token);
+        localStorage.setItem('salesiq_user',           JSON.stringify(user));
+
         showSuccess(`Welcome back, ${data.data.name}! Redirecting...`);
         setTimeout(() => { window.location.href = 'index.html'; }, 1200);
       } else {
@@ -701,7 +706,12 @@
       const data = await res.json();
 
       if (data.success) {
-        localStorage.setItem('salesiq_user', JSON.stringify(data.data));
+        // ── Persist all three auth keys ──
+        const { access_token, refresh_token, ...user } = data.data;
+        localStorage.setItem('salesiq_access_token',  access_token);
+        localStorage.setItem('salesiq_refresh_token', refresh_token);
+        localStorage.setItem('salesiq_user',           JSON.stringify(user));
+
         showSuccess(`Account created! Welcome, ${data.data.name}. Redirecting...`);
         setTimeout(() => { window.location.href = 'index.html'; }, 1400);
       } else {

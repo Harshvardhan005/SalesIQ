@@ -4,35 +4,69 @@ const API_BASE_URL = (window.location.protocol.startsWith('http') && window.loca
   ? `${window.location.origin}/api`
   : "http://127.0.0.1:5000/api";
 
-// ── Auth Guard ──────────────────────────────────────────────────────────────
+// ── Auth helpers ─────────────────────────────────────────────────────────────
 const _currentUser = JSON.parse(localStorage.getItem('salesiq_user') || 'null');
 
+/** True only when a JWT access_token is present in localStorage */
 function isLoggedIn() {
-  return !!JSON.parse(localStorage.getItem('salesiq_user') || 'null');
+  return !!localStorage.getItem('salesiq_access_token');
 }
 
 // Populate navbar with logged-in user's name
 (function populateNavUser() {
   const user = _currentUser;
   if (!user) return;
-  const pill = document.getElementById('nav-user-pill');
-  const avatar = document.getElementById('nav-user-avatar');
-  const nameEl = document.getElementById('nav-user-name');
+  const pill    = document.getElementById('nav-user-pill');
+  const avatar  = document.getElementById('nav-user-avatar');
+  const nameEl  = document.getElementById('nav-user-name');
   const signinBtn = document.getElementById('nav-signin-btn');
   if (pill && nameEl && avatar) {
-    nameEl.textContent = user.name || user.email;
-    avatar.textContent = (user.name || user.email || '?')[0].toUpperCase();
-    pill.style.display = 'flex';
+    nameEl.textContent  = user.name || user.email;
+    avatar.textContent  = (user.name || user.email || '?')[0].toUpperCase();
+    pill.style.display  = 'flex';
   }
   if (signinBtn) signinBtn.style.display = 'none';
 })();
 
-// Sign Out — clear session and redirect to login
+/**
+ * Sign Out — call /api/auth/logout, wipe all auth keys, redirect to login.
+ * Runs fire-and-forget so a network error never blocks the redirect.
+ */
 function signOut() {
+  const token = localStorage.getItem('salesiq_access_token');
+  if (token) {
+    fetch(`${API_BASE_URL}/auth/logout`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}` }
+    }).catch(() => {}); // ignore errors — we're logging out regardless
+  }
+  localStorage.removeItem('salesiq_access_token');
+  localStorage.removeItem('salesiq_refresh_token');
   localStorage.removeItem('salesiq_user');
   window.location.href = 'login.html';
 }
-// ────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Try to get a fresh access_token using the stored refresh_token.
+ * Returns the new access_token string, or null on failure.
+ */
+async function _refreshAccessToken() {
+  const refreshToken = localStorage.getItem('salesiq_refresh_token');
+  if (!refreshToken) return null;
+  try {
+    const res = await fetch(`${API_BASE_URL}/auth/refresh`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${refreshToken}` }
+    });
+    const json = await res.json();
+    if (res.ok && json.success && json.data?.access_token) {
+      localStorage.setItem('salesiq_access_token', json.data.access_token);
+      return json.data.access_token;
+    }
+  } catch (_) {}
+  return null;
+}
+// ─────────────────────────────────────────────────────────────────────────────
 
 // Cached Data
 let cachedReports = [];
@@ -48,12 +82,15 @@ document.addEventListener("DOMContentLoaded", () => {
   fetchSearchStatus();
 });
 
-// Generic Fetch Wrapper with Error Handling & Loading States
-async function apiRequest(endpoint, method = "GET", body = null) {
+// Generic Fetch Wrapper with JWT auth, auto-refresh, and error handling
+async function apiRequest(endpoint, method = "GET", body = null, _retry = false) {
+  const token = localStorage.getItem('salesiq_access_token');
+
   const options = {
     method,
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
+      ...(token ? { "Authorization": `Bearer ${token}` } : {})
     }
   };
 
@@ -63,19 +100,33 @@ async function apiRequest(endpoint, method = "GET", body = null) {
 
   try {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, options);
-    const result = await response.json();
+    const result  = await response.json();
+
+    // ── Auto-refresh on 401 (expired token) ──────────────────────────────
+    if (response.status === 401 && !_retry) {
+      const newToken = await _refreshAccessToken();
+      if (newToken) {
+        return apiRequest(endpoint, method, body, true); // one retry
+      }
+      // Refresh failed → force logout
+      showToast("Session expired. Please sign in again.", "error");
+      setTimeout(signOut, 1500);
+      throw new Error("Session expired");
+    }
 
     if (!response.ok || !result.success) {
       const err = new Error(result.message || `Server returned status ${response.status}`);
       err.status = response.status;
-      err.data = result.data;
+      err.data   = result.data;
       throw err;
     }
 
     return result;
   } catch (err) {
-    console.error(`API Error on ${endpoint}:`, err);
-    showToast(err.message || "Network connection error", "error");
+    if (err.message !== "Session expired") {
+      console.error(`API Error on ${endpoint}:`, err);
+      showToast(err.message || "Network connection error", "error");
+    }
     throw err;
   }
 }
